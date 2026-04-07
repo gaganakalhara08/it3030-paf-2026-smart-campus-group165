@@ -3,6 +3,7 @@ package com.smartcampus.paf.controller;
 import com.smartcampus.paf.dto.request.BookingActionRequestDTO;
 import com.smartcampus.paf.dto.request.BookingRequestDTO;
 import com.smartcampus.paf.dto.response.BookingResponseDTO;
+import com.smartcampus.paf.exception.UnauthorizedException;
 import com.smartcampus.paf.model.enums.BookingStatus;
 import com.smartcampus.paf.security.JwtTokenProvider;
 import com.smartcampus.paf.service.BookingService;
@@ -25,13 +26,30 @@ public class BookingController {
     private final BookingService bookingService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    // Helper method to extract email from token with validation
     private String getEmailFromToken(String authHeader) {
+        if (authHeader == null || authHeader.isBlank()) {
+            throw new UnauthorizedException("Authorization header is missing");
+        }
+        
+        if (!authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Invalid authorization header format. Expected 'Bearer ' prefix");
+        }
+        
         String token = authHeader.substring(7);
-        return jwtTokenProvider.getEmailFromToken(token);
+        if (token.isBlank()) {
+            throw new UnauthorizedException("Token is missing");
+        }
+        
+        try {
+            return jwtTokenProvider.getEmailFromToken(token);
+        } catch (Exception e) {
+            throw new UnauthorizedException("Invalid or expired token: " + e.getMessage());
+        }
     }
 
     // ==================== CREATE ====================
-
+    
     @PostMapping
     public ResponseEntity<BookingResponseDTO> createBooking(
             @Valid @RequestBody BookingRequestDTO request,
@@ -41,14 +59,37 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
-    // ==================== READ ====================
-
-    @GetMapping("/{id}")
-    public ResponseEntity<BookingResponseDTO> getBookingById(@PathVariable String id) {
-        BookingResponseDTO booking = bookingService.getBookingById(id);
-        return ResponseEntity.ok(booking);
+    // ==================== UTILITY ENDPOINTS (MUST BE BEFORE /{id}) ====================
+    
+    @GetMapping("/check-conflict")
+    public ResponseEntity<Boolean> checkConflict(
+            @RequestParam String resourceId,
+            @RequestParam LocalDate date,
+            @RequestParam LocalTime startTime,
+            @RequestParam LocalTime endTime) {
+        boolean hasConflict = bookingService.checkConflict(resourceId, date, startTime, endTime);
+        return ResponseEntity.ok(hasConflict);
+    }
+    
+    @GetMapping("/available-slots")
+    public ResponseEntity<List<LocalTime[]>> getAvailableTimeSlots(
+            @RequestParam String resourceId,
+            @RequestParam LocalDate date) {
+        List<LocalTime[]> availableSlots = bookingService.getAvailableTimeSlots(resourceId, date);
+        return ResponseEntity.ok(availableSlots);
     }
 
+    // ==================== READ ====================
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<BookingResponseDTO> getBookingById(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authHeader) {
+        String userEmail = getEmailFromToken(authHeader);
+        BookingResponseDTO booking = bookingService.getBookingById(id, userEmail);
+        return ResponseEntity.ok(booking);
+    }
+    
     @GetMapping("/my-bookings")
     public ResponseEntity<List<BookingResponseDTO>> getUserBookings(
             @RequestHeader("Authorization") String authHeader) {
@@ -56,7 +97,7 @@ public class BookingController {
         List<BookingResponseDTO> bookings = bookingService.getUserBookings(userEmail);
         return ResponseEntity.ok(bookings);
     }
-
+    
     @GetMapping("/my-bookings/status/{status}")
     public ResponseEntity<List<BookingResponseDTO>> getUserBookingsByStatus(
             @PathVariable String status,
@@ -66,7 +107,7 @@ public class BookingController {
         List<BookingResponseDTO> bookings = bookingService.getUserBookingsByStatus(userEmail, bookingStatus);
         return ResponseEntity.ok(bookings);
     }
-
+    
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BookingResponseDTO>> getAllBookings(
@@ -78,7 +119,7 @@ public class BookingController {
     }
 
     // ==================== UPDATE - Workflow ====================
-
+    
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponseDTO> approveBooking(
@@ -88,7 +129,7 @@ public class BookingController {
         BookingResponseDTO booking = bookingService.approveBooking(id, adminEmail);
         return ResponseEntity.ok(booking);
     }
-
+    
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponseDTO> rejectBooking(
@@ -99,7 +140,7 @@ public class BookingController {
         BookingResponseDTO booking = bookingService.rejectBooking(id, request.getReason(), adminEmail);
         return ResponseEntity.ok(booking);
     }
-
+    
     @PutMapping("/{id}/cancel")
     public ResponseEntity<BookingResponseDTO> cancelBooking(
             @PathVariable String id,
@@ -108,7 +149,7 @@ public class BookingController {
         BookingResponseDTO booking = bookingService.cancelBooking(id, userEmail);
         return ResponseEntity.ok(booking);
     }
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> updateBooking(
             @PathVariable String id,
@@ -120,7 +161,7 @@ public class BookingController {
     }
 
     // ==================== DELETE ====================
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(
             @PathVariable String id,
@@ -128,25 +169,5 @@ public class BookingController {
         String userEmail = getEmailFromToken(authHeader);
         bookingService.deleteBooking(id, userEmail);
         return ResponseEntity.ok("Booking deleted successfully");
-    }
-
-    // ==================== UTILITY ENDPOINTS ====================
-
-    @GetMapping("/check-conflict")
-    public ResponseEntity<Boolean> checkConflict(
-            @RequestParam String resourceId,
-            @RequestParam LocalDate date,
-            @RequestParam LocalTime startTime,
-            @RequestParam LocalTime endTime) {
-        boolean hasConflict = bookingService.checkConflict(resourceId, date, startTime, endTime);
-        return ResponseEntity.ok(hasConflict);
-    }
-
-    @GetMapping("/available-slots")
-    public ResponseEntity<List<LocalTime[]>> getAvailableTimeSlots(
-            @RequestParam String resourceId,
-            @RequestParam LocalDate date) {
-        List<LocalTime[]> availableSlots = bookingService.getAvailableTimeSlots(resourceId, date);
-        return ResponseEntity.ok(availableSlots);
     }
 }
