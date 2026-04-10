@@ -26,7 +26,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-
+        System.out.println("🔥 SUCCESS HANDLER TRIGGERED");
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
 
         String email = oauthUser.getAttribute("email");
@@ -55,6 +55,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         // 🔹 Redirect to frontend
-        response.sendRedirect("http://localhost:5173/dashboard?token=" + token);
+        response.setStatus(HttpServletResponse.SC_FOUND);
+        response.setHeader("Location", "http://localhost:5173/dashboard?token=" + token);
     }
 }

@@ -1,38 +1,68 @@
-import React from "react";
-import "../App.css";
+import React, { useEffect, useState } from "react";
+import UserDashboard from "./UserDashboard";
+import AdminDashboard from "./AdminDashboard";
+import TechnicianDashboard from "./TechnicianDashboard";
 
 const Dashboard = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [role, setRole] = useState(null);
 
-  return (
-    <div className="dashboard-container">
-      
-      {/* Sidebar */}
-      <div className="sidebar">
-        <h2 className="logo-text">CampusOps</h2>
+  useEffect(() => {
+    // 🔥 STEP 1: Extract token from URL
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
 
-        <ul>
-          <li>Dashboard</li>
-          <li>Bookings</li>
-          <li>Notifications</li>
-          <li>Profile</li>
-        </ul>
-      </div>
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
 
-      {/* Main Content */}
-      <div className="main-content">
-        <h1>Welcome, {user?.name}</h1>
-        <p>Email: {user?.email}</p>
+      // Clean URL
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
 
-        <div className="cards">
-          <div className="card">My Bookings</div>
-          <div className="card">Notifications</div>
-          <div className="card">Quick Actions</div>
-        </div>
-      </div>
+    // 🔥 STEP 2: Fetch user
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    </div>
-  );
+        if (!token) {
+          console.log("No token found");
+          return;
+        }
+
+        const res = await fetch("http://localhost:8080/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        console.log("User Data:", data);
+
+        const roles = data.roles || [];
+
+        if (roles.includes("ROLE_ADMIN")) {
+          setRole("ADMIN");
+        } else if (roles.includes("ROLE_TECHNICIAN")) {
+          setRole("TECHNICIAN");
+        } else {
+          setRole("USER");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // ⏳ Loading
+  if (!role) {
+    return <div>Loading...</div>;
+  }
+
+  // 🎯 Role-based render
+  if (role === "ADMIN") return <AdminDashboard />;
+  if (role === "TECHNICIAN") return <TechnicianDashboard />;
+  return <UserDashboard />;
 };
 
 export default Dashboard;
