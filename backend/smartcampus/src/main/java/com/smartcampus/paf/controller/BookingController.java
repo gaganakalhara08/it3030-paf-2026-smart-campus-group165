@@ -9,6 +9,10 @@ import com.smartcampus.paf.security.JwtTokenProvider;
 import com.smartcampus.paf.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -110,11 +114,21 @@ public class BookingController {
     
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BookingResponseDTO>> getAllBookings(
+    public ResponseEntity<Page<BookingResponseDTO>> getAllBookings(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String resourceId,
-            @RequestParam(required = false) String userId) {
-        List<BookingResponseDTO> bookings = bookingService.getAllBookings(status, resourceId, userId);
+            @RequestParam(required = false) String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "bookingDate") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+        
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        
+        Page<BookingResponseDTO> bookings = bookingService.getAllBookingsPaginated(
+                status, resourceId, userId, pageable);
+        
         return ResponseEntity.ok(bookings);
     }
 

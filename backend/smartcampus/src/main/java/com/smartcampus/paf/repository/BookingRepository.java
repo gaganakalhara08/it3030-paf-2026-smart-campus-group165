@@ -3,6 +3,8 @@ package com.smartcampus.paf.repository;
 import com.smartcampus.paf.model.Booking;
 import com.smartcampus.paf.model.User;
 import com.smartcampus.paf.model.enums.BookingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -38,6 +40,15 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findBookingsWithFilters(@Param("status") BookingStatus status,
             @Param("resourceId") String resourceId,
             @Param("userId") String userId);
+
+    @Query("SELECT b FROM Booking b WHERE " +
+            "(:status IS NULL OR b.status = :status) AND " +
+            "(:resourceId IS NULL OR b.resourceId = :resourceId) AND " +
+            "(:userId IS NULL OR b.user.id = :userId)")
+    Page<Booking> findBookingsWithFiltersPaginated(@Param("status") BookingStatus status,
+            @Param("resourceId") String resourceId,
+            @Param("userId") String userId,
+            Pageable pageable);
 
     @Query("SELECT b FROM Booking b ORDER BY b.createdAt DESC")
     List<Booking> findAllOrderByCreatedAtDesc();

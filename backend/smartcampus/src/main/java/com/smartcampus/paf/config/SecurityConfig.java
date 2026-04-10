@@ -32,15 +32,21 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
+                        // Public booking utility endpoints
+                        .requestMatchers("/api/bookings/check-conflict").permitAll()
+                        .requestMatchers("/api/bookings/available-slots").permitAll()
+
+                        // Admin endpoints - MUST BE BEFORE general booking endpoints
+                        .requestMatchers("/api/bookings/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         // User endpoints (authenticated users)
                         .requestMatchers("/api/users/me", "/api/users/me/**").authenticated()
 
-                        // Booking endpoints
+                        // General Booking endpoints - MUST BE AFTER admin pattern
                         .requestMatchers("/api/bookings/**").authenticated()
-                        .requestMatchers("/api/bookings/admin/**").hasRole("ADMIN")
 
-                        // Role-based endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Technician endpoints
                         .requestMatchers("/api/technician/**").hasAnyRole("TECHNICIAN", "ADMIN")
 
                         // All other endpoints need authentication - MUST BE LAST!

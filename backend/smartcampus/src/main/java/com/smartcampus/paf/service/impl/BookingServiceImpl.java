@@ -11,6 +11,8 @@ import com.smartcampus.paf.repository.BookingRepository;
 import com.smartcampus.paf.repository.UserRepository;
 import com.smartcampus.paf.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,6 +112,13 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findBookingsWithFilters(bookingStatus, resourceId, userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public Page<BookingResponseDTO> getAllBookingsPaginated(String status, String resourceId, String userId, Pageable pageable) {
+        BookingStatus bookingStatus = status != null ? BookingStatus.valueOf(status) : null;
+        Page<Booking> bookings = bookingRepository.findBookingsWithFiltersPaginated(bookingStatus, resourceId, userId, pageable);
+        return bookings.map(this::mapToResponse);
     }
     
     @Override

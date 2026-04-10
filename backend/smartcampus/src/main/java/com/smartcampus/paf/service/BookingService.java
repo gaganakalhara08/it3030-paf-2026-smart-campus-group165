@@ -3,6 +3,8 @@ package com.smartcampus.paf.service;
 import com.smartcampus.paf.dto.request.BookingRequestDTO;
 import com.smartcampus.paf.dto.response.BookingResponseDTO;
 import com.smartcampus.paf.model.enums.BookingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -13,10 +15,11 @@ public interface BookingService {
     BookingResponseDTO createBooking(BookingRequestDTO request, String userEmail);
     
     // READ
-    BookingResponseDTO getBookingById(String bookingId, String userEmail);  // Updated with userEmail
+    BookingResponseDTO getBookingById(String bookingId, String userEmail);
     List<BookingResponseDTO> getUserBookings(String userEmail);
     List<BookingResponseDTO> getUserBookingsByStatus(String userEmail, BookingStatus status);
     List<BookingResponseDTO> getAllBookings(String status, String resourceId, String userId);
+    Page<BookingResponseDTO> getAllBookingsPaginated(String status, String resourceId, String userId, Pageable pageable);
     
     // UPDATE - Workflow
     BookingResponseDTO approveBooking(String bookingId, String adminEmail);
