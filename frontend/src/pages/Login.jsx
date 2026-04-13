@@ -5,7 +5,7 @@ import logo from "../assets/logo.png";
 const Login = () => {
   const handleLogin = () => {
     // Redirect to Spring Boot OAuth endpoint
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = "http://localhost:8081/oauth2/authorization/google";
   };
 
   return (
