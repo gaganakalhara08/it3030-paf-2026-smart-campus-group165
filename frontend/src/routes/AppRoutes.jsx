@@ -3,9 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import UserDashboard from "../pages/UserDashboard";
-import ProtectedRoute from "../components/ProtectedRoute";
+import AdminDashboard from "../pages/AdminDashboard";
+import ProtectedRoute from "./ProtectedRoute";
 import CreateBooking from "../pages/user/booking/CreateBooking";
 import BookingDetails from "../pages/user/booking/BookingDetails";
+import AdminBookingDashboard from "../pages/admin/booking/AdminBookingDashboard";
 
 const AppRoutes = () => {
   return (
@@ -20,6 +22,25 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Admin Routes */}
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/admin/bookings" 
+          element={
+            <ProtectedRoute>
+              <AdminBookingDashboard />
             </ProtectedRoute>
           } 
         />

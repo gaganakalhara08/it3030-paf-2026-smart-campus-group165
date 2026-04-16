@@ -45,31 +45,12 @@ const CreateBooking = () => {
         resourceLocation: selected.location,
         capacity: selected.capacity,
       });
-      setErrors({ ...errors, resourceId: "" });
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
-
-    // Validate expected attendees against capacity in real-time
-    if (name === "expectedAttendees" && formData.capacity) {
-      const attendees = parseInt(value);
-      if (attendees > formData.capacity) {
-        setErrors({
-          ...errors,
-          expectedAttendees: `Cannot exceed room capacity of ${formData.capacity}`,
-        });
-      } else if (errors.expectedAttendees) {
-        setErrors({ ...errors, expectedAttendees: "" });
-      }
-    }
   };
 
   const timeSlots = [
@@ -84,7 +65,6 @@ const CreateBooking = () => {
   const handleTimeSlotSelect = (slot) => {
     setFormData({ ...formData, startTime: slot[0], endTime: slot[1] });
     setSelectedSlot(`${slot[0]}-${slot[1]}`);
-    setErrors({ ...errors, startTime: "" });
   };
 
   const validateForm = () => {
@@ -97,7 +77,7 @@ const CreateBooking = () => {
     if (!formData.bookingDate) {
       newErrors.bookingDate = "Please select a booking date";
     } else {
-      const selectedDate = new Date(formData.bookingDate);
+      const selectedDate = new Date(formData.bookingDate + "T00:00:00");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selectedDate < today) {
@@ -109,7 +89,7 @@ const CreateBooking = () => {
       newErrors.startTime = "Please select a time slot";
     }
 
-    if (!formData.purpose.trim()) {
+    if (!formData.purpose || !formData.purpose.trim()) {
       newErrors.purpose = "Please describe the purpose of booking";
     } else if (formData.purpose.trim().length < 10) {
       newErrors.purpose = "Purpose must be at least 10 characters";
@@ -119,10 +99,9 @@ const CreateBooking = () => {
       newErrors.expectedAttendees = "Please enter number of attendees";
     } else {
       const attendees = parseInt(formData.expectedAttendees);
-      if (attendees < 1) {
+      if (isNaN(attendees) || attendees < 1) {
         newErrors.expectedAttendees = "Must have at least 1 attendee";
-      }
-      if (attendees > formData.capacity) {
+      } else if (attendees > formData.capacity) {
         newErrors.expectedAttendees = `Cannot exceed room capacity of ${formData.capacity}`;
       }
     }
@@ -133,44 +112,60 @@ const CreateBooking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("📝 Form submitted. Current formData:", formData);
 
     if (!validateForm()) {
+      console.log("❌ Validation failed. Errors:", errors);
       toast.error("Please fix the errors in the form");
       return;
     }
 
+    console.log("✅ Validation passed. Sending booking...");
+
     const toastId = toast.loading("Creating booking...");
     try {
       setLoading(true);
+
+      const bookingPayload = {
+        resourceId: formData.resourceId,
+        resourceName: formData.resourceName,
+        resourceType: formData.resourceType,
+        resourceLocation: formData.resourceLocation,
+        capacity: parseInt(formData.capacity),
+        bookingDate: formData.bookingDate,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        purpose: formData.purpose.trim(),
+        expectedAttendees: parseInt(formData.expectedAttendees),
+      };
+
+      console.log("📤 Sending payload:", bookingPayload);
+
       const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({
-          resourceId: formData.resourceId,
-          resourceName: formData.resourceName,
-          resourceType: formData.resourceType,
-          resourceLocation: formData.resourceLocation,
-          capacity: parseInt(formData.capacity),
-          bookingDate: formData.bookingDate,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          purpose: formData.purpose.trim(),
-          expectedAttendees: parseInt(formData.expectedAttendees),
-        }),
+        body: JSON.stringify(bookingPayload),
       });
+
+      console.log("📥 Response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create booking");
+        console.error("❌ API error:", errorData);
+        throw new Error(errorData.message || `Failed to create booking (${response.status})`);
       }
+
+      const result = await response.json();
+      console.log("✅ Booking created successfully:", result);
 
       toast.success("Booking created successfully!", { id: toastId });
       setTimeout(() => navigate("/user/bookings"), 1500);
     } catch (error) {
-      console.error("Error creating booking:", error);
+      console.error("❌ Error creating booking:", error);
       toast.error(error.message || "Failed to create booking", { id: toastId });
     } finally {
       setLoading(false);
@@ -312,14 +307,11 @@ const CreateBooking = () => {
               onChange={handleInputChange}
               placeholder="Describe the purpose of your booking (minimum 10 characters)..."
               rows="4"
-              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all resize-none ${
-                errors.purpose ? "border-red-400 border-opacity-100" : "border-purple-400 border-opacity-40"
+              className={`w-full px-4 py-3 bg-slate-700 border-2 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500 transition-all resize-none ${
+                errors.purpose ? "border-red-400" : "border-purple-400 border-opacity-40"
               }`}
               required
             />
-            <p className="text-xs text-gray-400 mt-2">
-              {formData.purpose.length}/10 characters minimum
-            </p>
           </FormField>
 
           {/* Expected Attendees */}

@@ -54,8 +54,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 user.getRoles().toString()
         );
 
-        // 🔹 Redirect to frontend
+        // 🔹 Redirect to frontend LOGIN page (not dashboard)
+        // Login.jsx will capture the token and store it in localStorage
         response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", "http://localhost:5173/dashboard?token=" + token);
+        response.setHeader("Location", "http://localhost:5173/login?token=" + token);
     }
 }
