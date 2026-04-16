@@ -7,6 +7,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import CreateBooking from "../pages/user/booking/CreateBooking";
 import BookingDetails from "../pages/user/booking/BookingDetails";
+import BookingDashboard from "../pages/user/booking/BookingDashboard";
 import AdminBookingDashboard from "../pages/admin/booking/AdminBookingDashboard";
 
 const AppRoutes = () => {
@@ -45,12 +46,22 @@ const AppRoutes = () => {
           } 
         />
         
-        {/* User Booking Management Routes */}
+        {/* User Routes */}
         <Route 
-          path="/user/bookings" 
+          path="/user/dashboard" 
           element={
             <ProtectedRoute>
               <UserDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* User Booking Management Routes - Dashboard MUST be before :id */}
+        <Route 
+          path="/user/bookings/dashboard" 
+          element={
+            <ProtectedRoute>
+              <BookingDashboard />
             </ProtectedRoute>
           } 
         />

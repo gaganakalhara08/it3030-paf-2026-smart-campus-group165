@@ -57,7 +57,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<BookingResponseDTO> createBooking(
             @Valid @RequestBody BookingRequestDTO request,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.createBooking(request, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
@@ -88,7 +88,7 @@ public class BookingController {
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> getBookingById(
             @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.getBookingById(id, userEmail);
         return ResponseEntity.ok(booking);
@@ -96,7 +96,7 @@ public class BookingController {
     
     @GetMapping("/my-bookings")
     public ResponseEntity<List<BookingResponseDTO>> getUserBookings(
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         List<BookingResponseDTO> bookings = bookingService.getUserBookings(userEmail);
         return ResponseEntity.ok(bookings);
@@ -105,7 +105,7 @@ public class BookingController {
     @GetMapping("/my-bookings/status/{status}")
     public ResponseEntity<List<BookingResponseDTO>> getUserBookingsByStatus(
             @PathVariable String status,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
         List<BookingResponseDTO> bookings = bookingService.getUserBookingsByStatus(userEmail, bookingStatus);
@@ -138,7 +138,7 @@ public class BookingController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponseDTO> approveBooking(
             @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String adminEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.approveBooking(id, adminEmail);
         return ResponseEntity.ok(booking);
@@ -149,7 +149,7 @@ public class BookingController {
     public ResponseEntity<BookingResponseDTO> rejectBooking(
             @PathVariable String id,
             @Valid @RequestBody BookingActionRequestDTO request,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String adminEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.rejectBooking(id, request.getReason(), adminEmail);
         return ResponseEntity.ok(booking);
@@ -158,7 +158,7 @@ public class BookingController {
     @PutMapping("/{id}/cancel")
     public ResponseEntity<BookingResponseDTO> cancelBooking(
             @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.cancelBooking(id, userEmail);
         return ResponseEntity.ok(booking);
@@ -168,7 +168,7 @@ public class BookingController {
     public ResponseEntity<BookingResponseDTO> updateBooking(
             @PathVariable String id,
             @Valid @RequestBody BookingRequestDTO request,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         BookingResponseDTO booking = bookingService.updateBooking(id, request, userEmail);
         return ResponseEntity.ok(booking);
@@ -179,7 +179,7 @@ public class BookingController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(
             @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String userEmail = getEmailFromToken(authHeader);
         bookingService.deleteBooking(id, userEmail);
         return ResponseEntity.ok("Booking deleted successfully");
