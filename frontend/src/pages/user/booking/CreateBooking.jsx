@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Users, MapPin, Send } from "lucide-react";
+import { ArrowLeft, Calendar, Users, MapPin, Send, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "../../../services/api";
 
@@ -22,6 +22,7 @@ const CreateBooking = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     setResources([
@@ -44,12 +45,31 @@ const CreateBooking = () => {
         resourceLocation: selected.location,
         capacity: selected.capacity,
       });
+      setErrors({ ...errors, resourceId: "" });
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+
+    // Validate expected attendees against capacity in real-time
+    if (name === "expectedAttendees" && formData.capacity) {
+      const attendees = parseInt(value);
+      if (attendees > formData.capacity) {
+        setErrors({
+          ...errors,
+          expectedAttendees: `Cannot exceed room capacity of ${formData.capacity}`,
+        });
+      } else if (errors.expectedAttendees) {
+        setErrors({ ...errors, expectedAttendees: "" });
+      }
+    }
   };
 
   const timeSlots = [
@@ -63,26 +83,59 @@ const CreateBooking = () => {
 
   const handleTimeSlotSelect = (slot) => {
     setFormData({ ...formData, startTime: slot[0], endTime: slot[1] });
-    setSelectedSlot(slot);
+    setSelectedSlot(`${slot[0]}-${slot[1]}`);
+    setErrors({ ...errors, startTime: "" });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.resourceId) {
+      newErrors.resourceId = "Please select a resource";
+    }
+
+    if (!formData.bookingDate) {
+      newErrors.bookingDate = "Please select a booking date";
+    } else {
+      const selectedDate = new Date(formData.bookingDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        newErrors.bookingDate = "Booking date cannot be in the past";
+      }
+    }
+
+    if (!formData.startTime || !formData.endTime) {
+      newErrors.startTime = "Please select a time slot";
+    }
+
+    if (!formData.purpose.trim()) {
+      newErrors.purpose = "Please describe the purpose of booking";
+    } else if (formData.purpose.trim().length < 10) {
+      newErrors.purpose = "Purpose must be at least 10 characters";
+    }
+
+    if (!formData.expectedAttendees) {
+      newErrors.expectedAttendees = "Please enter number of attendees";
+    } else {
+      const attendees = parseInt(formData.expectedAttendees);
+      if (attendees < 1) {
+        newErrors.expectedAttendees = "Must have at least 1 attendee";
+      }
+      if (attendees > formData.capacity) {
+        newErrors.expectedAttendees = `Cannot exceed room capacity of ${formData.capacity}`;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.resourceId ||
-      !formData.bookingDate ||
-      !formData.startTime ||
-      !formData.endTime ||
-      !formData.purpose ||
-      !formData.expectedAttendees
-    ) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    if (parseInt(formData.expectedAttendees) > formData.capacity) {
-      toast.error(`Expected attendees cannot exceed room capacity of ${formData.capacity}`);
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
       return;
     }
 
@@ -104,7 +157,7 @@ const CreateBooking = () => {
           bookingDate: formData.bookingDate,
           startTime: formData.startTime,
           endTime: formData.endTime,
-          purpose: formData.purpose,
+          purpose: formData.purpose.trim(),
           expectedAttendees: parseInt(formData.expectedAttendees),
         }),
       });
@@ -123,6 +176,18 @@ const CreateBooking = () => {
       setLoading(false);
     }
   };
+
+  const FormField = ({ error, children }) => (
+    <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+      {children}
+      {error && (
+        <div className="flex items-center gap-2 mt-3 text-red-400 text-sm">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
@@ -145,14 +210,16 @@ const CreateBooking = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Resource Selection */}
-          <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+          <FormField error={errors.resourceId}>
             <label className="block text-sm font-semibold text-gray-300 mb-3">
               Select Resource <span className="text-red-400">*</span>
             </label>
             <select
               value={formData.resourceId}
               onChange={handleResourceChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-purple-400 border-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all"
+              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all ${
+                errors.resourceId ? "border-red-400 border-opacity-100" : "border-purple-400 border-opacity-40"
+              }`}
               required
             >
               <option value="">Choose a resource...</option>
@@ -162,7 +229,7 @@ const CreateBooking = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
 
           {/* Resource Details */}
           {formData.resourceId && (
@@ -185,7 +252,7 @@ const CreateBooking = () => {
           )}
 
           {/* Date Selection */}
-          <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+          <FormField error={errors.bookingDate}>
             <label className="block text-sm font-semibold text-gray-300 mb-3">
               Booking Date <span className="text-red-400">*</span>
             </label>
@@ -196,40 +263,46 @@ const CreateBooking = () => {
                 value={formData.bookingDate}
                 onChange={handleInputChange}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-3 bg-slate-700 border border-purple-400 border-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all"
+                className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all ${
+                  errors.bookingDate ? "border-red-400 border-opacity-100" : "border-purple-400 border-opacity-40"
+                }`}
                 required
               />
               <Calendar size={20} className="absolute right-3 top-3 text-purple-400 pointer-events-none" />
             </div>
-          </div>
+          </FormField>
 
           {/* Time Slot Selection */}
           {formData.bookingDate && formData.resourceId && (
-            <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+            <FormField error={errors.startTime}>
               <label className="block text-sm font-semibold text-gray-300 mb-4">
                 Select Time Slot <span className="text-red-400">*</span>
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {timeSlots.map((slot, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleTimeSlotSelect(slot)}
-                    className={`p-3 rounded-lg font-semibold transition-all ${
-                      selectedSlot === slot
-                        ? "bg-purple-600 text-white border-2 border-purple-400"
-                        : "bg-slate-700 text-gray-300 border-2 border-purple-400 border-opacity-30 hover:border-opacity-60"
-                    }`}
-                  >
-                    {slot[0].substring(0, 5)} - {slot[1].substring(0, 5)}
-                  </button>
-                ))}
+                {timeSlots.map((slot, index) => {
+                  const slotKey = `${slot[0]}-${slot[1]}`;
+                  const isSelected = selectedSlot === slotKey;
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleTimeSlotSelect(slot)}
+                      className={`p-3 rounded-lg font-semibold transition-all ${
+                        isSelected
+                          ? "bg-purple-600 text-white border-2 border-purple-400"
+                          : "bg-slate-700 text-gray-300 border-2 border-purple-400 border-opacity-30 hover:border-opacity-60"
+                      }`}
+                    >
+                      {slot[0].substring(0, 5)} - {slot[1].substring(0, 5)}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            </FormField>
           )}
 
           {/* Purpose */}
-          <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+          <FormField error={errors.purpose}>
             <label className="block text-sm font-semibold text-gray-300 mb-3">
               Purpose of Booking <span className="text-red-400">*</span>
             </label>
@@ -237,15 +310,20 @@ const CreateBooking = () => {
               name="purpose"
               value={formData.purpose}
               onChange={handleInputChange}
-              placeholder="Describe the purpose of your booking..."
+              placeholder="Describe the purpose of your booking (minimum 10 characters)..."
               rows="4"
-              className="w-full px-4 py-3 bg-slate-700 border border-purple-400 border-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all resize-none"
+              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all resize-none ${
+                errors.purpose ? "border-red-400 border-opacity-100" : "border-purple-400 border-opacity-40"
+              }`}
               required
             />
-          </div>
+            <p className="text-xs text-gray-400 mt-2">
+              {formData.purpose.length}/10 characters minimum
+            </p>
+          </FormField>
 
           {/* Expected Attendees */}
-          <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+          <FormField error={errors.expectedAttendees}>
             <label className="block text-sm font-semibold text-gray-300 mb-3">
               Expected Attendees <span className="text-red-400">*</span>
             </label>
@@ -258,12 +336,19 @@ const CreateBooking = () => {
                 min="1"
                 max={formData.capacity || 100}
                 placeholder="Number of people"
-                className="w-full px-4 py-3 bg-slate-700 border border-purple-400 border-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all"
+                className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:border-opacity-100 transition-all ${
+                  errors.expectedAttendees ? "border-red-400 border-opacity-100" : "border-purple-400 border-opacity-40"
+                }`}
                 required
               />
               <Users size={20} className="absolute right-3 top-3 text-purple-400 pointer-events-none" />
             </div>
-          </div>
+            {formData.capacity && formData.expectedAttendees && (
+              <p className="text-xs text-gray-400 mt-2">
+                {formData.expectedAttendees} / {formData.capacity} capacity
+              </p>
+            )}
+          </FormField>
 
           {/* Submit Buttons */}
           <div className="flex gap-4 pt-4">
