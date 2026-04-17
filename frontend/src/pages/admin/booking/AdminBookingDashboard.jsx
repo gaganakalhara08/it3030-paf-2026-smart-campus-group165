@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { CheckCircle, XCircle, Clock, List } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle, XCircle, Clock, List, BarChart3, LogOut, Home } from "lucide-react";
 import toast from "react-hot-toast";
 import ApprovalCard from "../../../components/booking/ApprovalCard";
 import BookingFilters from "../../../components/booking/BookingFilters";
@@ -7,6 +8,7 @@ import BookingPagination from "../../../components/booking/BookingPagination";
 import { API_BASE_URL } from "../../../services/api";
 
 const AdminBookingDashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -118,6 +120,11 @@ const AdminBookingDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   const StatCard = ({ icon: Icon, label, value, color }) => (
     <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
       <div className={`p-3 rounded-lg ${color}`}>
@@ -149,117 +156,157 @@ const AdminBookingDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Booking Management</h1>
-          <p className="text-gray-600 mt-2">Manage all bookings and approve/reject requests</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={List} label="Total Bookings" value={stats.total} color="bg-blue-600" />
-          <StatCard icon={Clock} label="Pending" value={stats.pending} color="bg-yellow-600" />
-          <StatCard icon={CheckCircle} label="Approved" value={stats.approved} color="bg-green-600" />
-          <StatCard icon={XCircle} label="Rejected" value={stats.rejected} color="bg-red-600" />
-        </div>
-
-        <div className="flex gap-3 mb-6 flex-wrap">
-          <TabButton id="all" label="All Bookings" icon={List} badge={0} />
-          <TabButton id="pending" label="Pending Approvals" icon={Clock} badge={stats.pending} />
-          <TabButton id="approved" label="Approved" icon={CheckCircle} badge={0} />
-          <TabButton id="rejected" label="Rejected" icon={XCircle} badge={0} />
-        </div>
-
-        {activeTab === "all" && (
-          <div className="mb-6">
-            <BookingFilters statusFilter={statusFilter} onStatusChange={(status) => {
-              setStatusFilter(status);
-              setCurrentPage(0);
-            }} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header Navigation */}
+      <div className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Smart Campus Admin Portal</h1>
+            <p className="text-gray-600 text-sm mt-1">Manage bookings and view analytics</p>
           </div>
-        )}
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
+            >
+              <List size={16} />
+              Booking Management
+            </button>
+            <button
+              onClick={() => navigate("/admin/analytics")}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
+            >
+              <BarChart3 size={16} />
+              Analytics
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold text-gray-800">Booking Management</h2>
+            <p className="text-gray-600 mt-2">Manage all bookings and approve/reject requests</p>
           </div>
-        ) : bookings.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <Clock size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700">No bookings found</h3>
-            <p className="text-gray-500 mt-2">There are no bookings in this category yet.</p>
+
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard icon={List} label="Total Bookings" value={stats.total} color="bg-blue-600" />
+            <StatCard icon={Clock} label="Pending" value={stats.pending} color="bg-yellow-600" />
+            <StatCard icon={CheckCircle} label="Approved" value={stats.approved} color="bg-green-600" />
+            <StatCard icon={XCircle} label="Rejected" value={stats.rejected} color="bg-red-600" />
           </div>
-        ) : (
-          <>
-            {activeTab === "pending" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {bookings.map((booking) => (
-                  <ApprovalCard
-                    key={booking.id}
-                    booking={booking}
-                    onApprove={() => handleApprove(booking.id)}
-                    onReject={(reason) => handleReject(booking.id, reason)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 border-b-2 border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">User</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Resource</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Attendees</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {bookings.map((booking) => (
-                        <tr key={booking.id} className="hover:bg-gray-50 transition-all">
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-semibold text-gray-800">{booking.userName}</p>
-                              <p className="text-sm text-gray-500">{booking.userEmail}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-semibold text-gray-800">{booking.resourceName}</p>
-                              <p className="text-sm text-gray-500">{booking.resourceLocation}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-semibold text-gray-800">{booking.bookingDate}</p>
-                              <p className="text-sm text-gray-500">{booking.startTime} - {booking.endTime}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              booking.status === "APPROVED" ? "bg-green-100 text-green-800" :
-                              booking.status === "REJECTED" ? "bg-red-100 text-red-800" :
-                              booking.status === "CANCELLED" ? "bg-gray-100 text-gray-800" :
-                              "bg-yellow-100 text-yellow-800"
-                            }`}>
-                              {booking.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-gray-800">{booking.expectedAttendees}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-3 mb-6 flex-wrap">
+            <TabButton id="all" label="All Bookings" icon={List} badge={0} />
+            <TabButton id="pending" label="Pending Approvals" icon={Clock} badge={stats.pending} />
+            <TabButton id="approved" label="Approved" icon={CheckCircle} badge={0} />
+            <TabButton id="rejected" label="Rejected" icon={XCircle} badge={0} />
+          </div>
+
+          {/* Filters */}
+          {activeTab === "all" && (
+            <div className="mb-6">
+              <BookingFilters statusFilter={statusFilter} onStatusChange={(status) => {
+                setStatusFilter(status);
+                setCurrentPage(0);
+              }} />
+            </div>
+          )}
+
+          {/* Content Area */}
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <Clock size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700">No bookings found</h3>
+              <p className="text-gray-500 mt-2">There are no bookings in this category yet.</p>
+            </div>
+          ) : (
+            <>
+              {activeTab === "pending" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {bookings.map((booking) => (
+                    <ApprovalCard
+                      key={booking.id}
+                      booking={booking}
+                      onApprove={() => handleApprove(booking.id)}
+                      onReject={(reason) => handleReject(booking.id, reason)}
+                    />
+                  ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-100 border-b-2 border-gray-200">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">User</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Resource</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Attendees</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {bookings.map((booking) => (
+                          <tr key={booking.id} className="hover:bg-gray-50 transition-all">
+                            <td className="px-6 py-4">
+                              <div>
+                                <p className="font-semibold text-gray-800">{booking.userName}</p>
+                                <p className="text-sm text-gray-500">{booking.userEmail}</p>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div>
+                                <p className="font-semibold text-gray-800">{booking.resourceName}</p>
+                                <p className="text-sm text-gray-500">{booking.resourceLocation}</p>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div>
+                                <p className="font-semibold text-gray-800">{booking.bookingDate}</p>
+                                <p className="text-sm text-gray-500">{booking.startTime} - {booking.endTime}</p>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                booking.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                booking.status === "REJECTED" ? "bg-red-100 text-red-800" :
+                                booking.status === "CANCELLED" ? "bg-gray-100 text-gray-800" :
+                                "bg-yellow-100 text-yellow-800"
+                              }`}>
+                                {booking.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-gray-800">{booking.expectedAttendees}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-            {totalPages > 1 && (
-              <BookingPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-            )}
-          </>
-        )}
+              {totalPages > 1 && (
+                <BookingPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
