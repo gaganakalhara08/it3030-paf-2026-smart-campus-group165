@@ -51,7 +51,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtTokenProvider.generateToken(
                 user.getEmail(),
                 user.getId(),
-                user.getRoles().toString()
+                user.getRoles().stream()
+                    .map(Enum::name)
+                    .reduce((a, b) -> a + "," + b)
+                    .orElse("")
         );
 
         // 🔹 Redirect to frontend LOGIN page (not dashboard)

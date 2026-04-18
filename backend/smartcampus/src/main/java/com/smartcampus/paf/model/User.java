@@ -25,6 +25,9 @@ public class User {
     
     @Column(nullable = false)
     private String name;
+
+    // 🔴 NEW FIELD (nullable for Google users)
+    private String password;
     
     private String pictureUrl;
     
@@ -41,6 +44,8 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+
+        // Default role
         if (roles.isEmpty()) {
             roles.add(Role.ROLE_USER);
         }

@@ -11,6 +11,7 @@ import BookingDashboard from "../pages/user/booking/BookingDashboard";
 import BookingCheckIn from "../pages/user/booking/BookingCheckIn";
 import AdminBookingDashboard from "../pages/admin/booking/AdminBookingDashboard";
 import AdminAnalyticsDashboard from "../pages/admin/booking/AdminAnalyticsDashboard";
+import Signup from "../pages/Signup";
 
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         
         {/* Protected Routes */}
         <Route 
@@ -103,6 +105,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+        
       </Routes>
     </BrowserRouter>
   );
