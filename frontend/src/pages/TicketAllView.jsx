@@ -131,6 +131,7 @@ const TicketAllView = ({ userEmail, userName }) => {
     open: tickets.filter((t) => t.status === 'OPEN').length,
     inProgress: tickets.filter((t) => t.status === 'IN_PROGRESS').length,
     resolved: tickets.filter((t) => t.status === 'RESOLVED').length,
+    reject: tickets.filter((t) => t.status === 'REJECTED').length,
     urgent: tickets.filter((t) => t.priority === 'URGENT').length,
   };
 
@@ -172,9 +173,13 @@ const TicketAllView = ({ userEmail, userName }) => {
           <p className="text-3xl font-bold text-green-900 mt-1">{stats.resolved}</p>
         </div>
         <div className="bg-red-50 p-6 rounded-lg border border-red-200">
+          <p className="text-red-700 text-sm font-medium">Reject</p>
+          <p className="text-3xl font-bold text-red-900 mt-1">{stats.reject}</p>
+        </div>
+        {/* <div className="bg-red-50 p-6 rounded-lg border border-red-200">
           <p className="text-red-700 text-sm font-medium">Urgent</p>
           <p className="text-3xl font-bold text-red-900 mt-1">{stats.urgent}</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Error Message */}
