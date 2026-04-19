@@ -12,6 +12,7 @@ import BookingCheckIn from "../pages/user/booking/BookingCheckIn";
 import AdminBookingDashboard from "../pages/admin/booking/AdminBookingDashboard";
 import AdminAnalyticsDashboard from "../pages/admin/booking/AdminAnalyticsDashboard";
 import Signup from "../pages/Signup";
+import UserManagement from "../pages/admin/user/UserManagement";
 
 const AppRoutes = () => {
   return (
@@ -102,6 +103,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <BookingDetails />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/users" 
+          element={
+            <ProtectedRoute>
+              <UserManagement />
             </ProtectedRoute>
           } 
         />

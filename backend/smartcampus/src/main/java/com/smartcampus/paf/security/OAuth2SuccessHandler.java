@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Set;
+import com.smartcampus.paf.model.enums.Role;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +41,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             newUser.setEmail(email);
             newUser.setName(name);
             newUser.setPictureUrl(picture);
-            newUser.setRoles(new HashSet<>());
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(Role.ROLE_USER);
+
+            newUser.setRoles(roles);
+
             return userRepository.save(newUser);
         });
 
