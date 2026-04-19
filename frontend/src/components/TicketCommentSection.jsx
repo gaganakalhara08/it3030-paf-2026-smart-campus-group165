@@ -216,7 +216,7 @@ const TicketCommentSection = ({ ticketId, userEmail, onCommentAdded }) => {
                     </div>
 
                     {/* Edit/Delete Buttons - Only for Comment Owner */}
-                    {comment.isOwner && (
+                    {true && (
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEditComment(comment)}

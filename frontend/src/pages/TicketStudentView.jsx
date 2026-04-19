@@ -136,11 +136,6 @@ const TicketStudentView = ({ userEmail }) => {
           <p className="text-sm text-gray-500">RESOLVED</p>
           <h2 className="text-2xl font-bold">{resolved}</h2>
         </div>
-
-        <div className="bg-white p-5 rounded-lg shadow">
-          <p className="text-sm text-gray-500">Avg. Response Time</p>
-          <h2 className="text-blue-600 font-bold">2.4 Hours</h2>
-        </div>
       </div>
 
       {/* Search + Filters */}

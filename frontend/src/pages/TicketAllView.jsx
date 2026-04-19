@@ -265,12 +265,15 @@ const TicketAllView = ({ userEmail, userName }) => {
 
                   {/* Badges */}
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(ticket.status)}`}>
+                    <p className="text-sm font-medium pt-1">Status :-</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(ticket.status)}`}> 
                       {ticket.status.replace('_', ' ')}
                     </span>
+                    <p className="text-sm font-medium pt-1">Priority :-</p>
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getPriorityColor(ticket.priority)}`}>
                       {ticket.priority}
                     </span>
+                    <p className="text-sm font-medium pt-1">Ticket Catagory :-</p>
                     <span className="inline-block px-3 py-1 rounded-full text-sm text-gray-600 bg-gray-200">
                       {ticket.category.replace('_', ' ')}
                     </span>

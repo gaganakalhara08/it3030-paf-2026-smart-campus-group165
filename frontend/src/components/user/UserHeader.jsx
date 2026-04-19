@@ -25,6 +25,15 @@ const UserHeader = () => {
             <Home size={16} />
             User Dashboard
           </button>
+
+          <button
+            onClick={() => navigate("/user/dashboard/tickets")}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
+          >
+            <LayoutDashboard size={16} />
+            Tickets Dashboard
+          </button>
+
           <button
             onClick={() => navigate("/user/bookings/dashboard")}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"

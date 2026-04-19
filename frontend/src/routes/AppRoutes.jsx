@@ -11,6 +11,14 @@ import BookingDashboard from "../pages/user/booking/BookingDashboard";
 import BookingCheckIn from "../pages/user/booking/BookingCheckIn";
 import AdminBookingDashboard from "../pages/admin/booking/AdminBookingDashboard";
 import AdminAnalyticsDashboard from "../pages/admin/booking/AdminAnalyticsDashboard";
+// Ticket Components
+import TicketDetailsModal from "../components/TicketDetailsModal";
+import TicketCommentSection from "../components/TicketCommentSection";
+import TechnicianDashboard from "../pages/TechnicianDashboard";
+import TicketStudentView from "../pages/TicketStudentView";
+import TicketAllView from "../pages/TicketAllView";
+import CreateTicketModal from "../components/CreateTicketModal";
+
 
 const AppRoutes = () => {
   return (
@@ -38,6 +46,27 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+
+        <Route
+          path="/admin/tickets"
+          element={
+            <ProtectedRoute>
+                <TicketAllView />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ========== TECHNICIAN ROUTES ========== */}
+        {/* <Route
+          path="/technician/dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute requiredRoles={["ROLE_TECHNICIAN"]}>
+                <TechnicianDashboard />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        /> */}
         
         <Route 
           path="/admin/bookings" 
@@ -66,7 +95,35 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
-        
+
+        <Route
+          path="/user/dashboard/tickets"
+          element={
+            <ProtectedRoute>
+              <TicketStudentView />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/dashboard/create"
+          element={
+            <ProtectedRoute>
+              <CreateTicketModal />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/dashboard/commnet"
+          element={
+            <ProtectedRoute>
+              <TicketCommentSection />
+            </ProtectedRoute>
+          }
+        />
+
+
         {/* User Booking Management Routes */}
         <Route 
           path="/user/bookings/dashboard" 
@@ -103,6 +160,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+
       </Routes>
     </BrowserRouter>
   );
