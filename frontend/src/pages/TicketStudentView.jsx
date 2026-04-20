@@ -174,7 +174,7 @@ const TicketStudentView = ({ userEmail }) => {
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-gray-600">
             <tr>
-              <th className="p-3 text-left">TICKET ID</th>
+              {/* <th className="p-3 text-left">TICKET ID</th> */}
               <th className="p-3 text-left">SUBJECT</th>
               <th className="p-3 text-left">CATEGORY</th>
               <th className="p-3 text-left">STATUS</th>
@@ -189,9 +189,9 @@ const TicketStudentView = ({ userEmail }) => {
                 className="border-t hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleView(ticket.id)}
               >
-                <td className="p-3 text-blue-600 font-semibold">
+                {/* <td className="p-3 text-blue-600 font-semibold">
                   #{ticket.id}
-                </td>
+                </td> */}
 
                 <td className="p-3">
                   <p className="font-medium">{ticket.title}</p>
