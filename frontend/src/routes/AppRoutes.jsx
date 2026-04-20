@@ -14,108 +14,112 @@ import AdminAnalyticsDashboard from "../pages/admin/booking/AdminAnalyticsDashbo
 import Signup from "../pages/Signup";
 import UserManagement from "../pages/admin/user/UserManagement";
 
+// ── Module A: Facilities & Assets Catalogue
+import AdminFacilitiesPage from "../pages/admin/resource/AdminFacilitiesPage";
+import UserResourceCatalogue from "../pages/user/resource/UserResourceCatalogue";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
+        <Route path="/login"  element={<Login />} />
+        <Route path="/"       element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
-        {/* Protected Routes */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* Admin Routes */}
-        <Route 
-          path="/admin/dashboard" 
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/admin/bookings" 
-          element={
-            <ProtectedRoute>
-              <AdminBookingDashboard />
-            </ProtectedRoute>
-          } 
-        />
 
-        <Route 
-          path="/admin/analytics" 
-          element={
-            <ProtectedRoute>
-              <AdminAnalyticsDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* User Routes */}
-        <Route 
-          path="/user/dashboard" 
-          element={
-            <ProtectedRoute>
-              <UserDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* User Booking Management Routes */}
-        <Route 
-          path="/user/bookings/dashboard" 
-          element={
-            <ProtectedRoute>
-              <BookingDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/user/bookings/create" 
-          element={
-            <ProtectedRoute>
-              <CreateBooking />
-            </ProtectedRoute>
-          } 
-        />
+        {/* Generic dashboard (redirects by role) */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-        <Route 
-          path="/user/bookings/:id/check-in" 
-          element={
-            <ProtectedRoute>
-              <BookingCheckIn />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/user/bookings/:id" 
-          element={
-            <ProtectedRoute>
-              <BookingDetails />
-            </ProtectedRoute>
-          } 
-        />
+        {/* ── Admin routes ── */}
+        <Route path="/admin/dashboard"  
+               element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+           />
 
-        <Route 
-          path="/admin/users" 
-          element={
-            <ProtectedRoute>
-              <UserManagement />
-            </ProtectedRoute>
-          } 
-        />
-        
+        <Route path="/admin/bookings"   
+               element={
+                <ProtectedRoute>
+                  <AdminBookingDashboard />
+                </ProtectedRoute>
+              } 
+          />
+
+        <Route path="/admin/analytics"  
+               element={
+                <ProtectedRoute>
+                  <AdminAnalyticsDashboard />
+                </ProtectedRoute>
+               }
+           />
+
+        <Route path="/admin/users"      
+               element={
+                <ProtectedRoute>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+           />
+
+        {/* Module A — Admin Facilities Management */}
+        <Route path="/admin/facilities" 
+               element={
+                <ProtectedRoute>
+                  <AdminFacilitiesPage />
+                </ProtectedRoute>
+              } 
+          />
+
+        {/* ── User routes ── */}
+        <Route path="/user/dashboard"              
+               element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+            } 
+         />
+
+        <Route path="/user/bookings/dashboard"     
+               element={
+                <ProtectedRoute>
+                  <BookingDashboard />
+                </ProtectedRoute>
+              } 
+         />
+
+        <Route path="/user/bookings/create"        
+               element={
+                <ProtectedRoute>
+                  <CreateBooking />
+                </ProtectedRoute>
+              } 
+         />
+
+        <Route path="/user/bookings/:id/check-in"  
+               element={
+                <ProtectedRoute>
+                  <BookingCheckIn />
+                </ProtectedRoute>
+              } 
+         />
+        <Route path="/user/bookings/:id"           
+               element={
+                <ProtectedRoute>
+                  <BookingDetails />
+                </ProtectedRoute>
+              } 
+         />
+
+        {/* Module A — User Resource Catalogue */}
+        <Route path="/user/resources" 
+               element={
+                <ProtectedRoute>
+                  <UserResourceCatalogue />
+                </ProtectedRoute>
+              } 
+         />
+         
       </Routes>
     </BrowserRouter>
   );
