@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class BookingServiceImpl implements BookingService {
     
     private final BookingRepository bookingRepository;

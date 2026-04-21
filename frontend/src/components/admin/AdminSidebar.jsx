@@ -1,18 +1,12 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  Calendar, 
-  Bell, 
-  Ticket, 
-  Users, 
-  Building2, 
-  LogOut,
-  ChevronRight
+import {
+  Calendar, Bell, Ticket, Users, Building2, LogOut, ChevronRight, BarChart2
 } from "lucide-react";
 
 const AdminSidebar = ({ onLogout }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
 
   const menuItems = [
     {
@@ -50,9 +44,16 @@ const AdminSidebar = ({ onLogout }) => {
       path: "/admin/facilities",
       description: "Manage campus resources"
     },
+    {
+      id: "resource-analytics",
+      label: "Resource Analytics",
+      icon: BarChart2,
+      path: "/admin/resource-analytics",
+      description: "Usage trends & utilisation"
+    },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname.startsWith(path);
 
   return (
     <div className="w-64 bg-slate-800 min-h-screen border-r border-purple-500 border-opacity-30 flex flex-col">
@@ -65,7 +66,7 @@ const AdminSidebar = ({ onLogout }) => {
       {/* Menu Items */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {menuItems.map((item) => {
-          const Icon = item.icon;
+          const Icon   = item.icon;
           const active = isActive(item.path);
           
           return (
@@ -78,7 +79,7 @@ const AdminSidebar = ({ onLogout }) => {
                   : "text-purple-300 hover:bg-slate-700 hover:text-white"
               }`}
             >
-              <Icon size={20} className={active ? "text-white" : "group-hover:text-purple-400"} />
+              <Icon size={20} className={active ? "text-white" : "text-purple-400"} />
               <div className="flex-1 text-left">
                 <p className="font-semibold text-sm">{item.label}</p>
                 <p className={`text-xs ${active ? "text-purple-100" : "text-purple-400"}`}>
