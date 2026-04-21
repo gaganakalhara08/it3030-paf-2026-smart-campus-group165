@@ -21,6 +21,13 @@ import CreateTicketModal from "../components/CreateTicketModal";
 
 import Signup from "../pages/Signup";
 
+// // ── Module A: Facilities & Assets Catalogue
+import AdminFacilitiesPage from "../pages/admin/resource/AdminFacilitiesPage";
+import UserResourceCatalogue from "../pages/user/resource/UserResourceCatalogue";
+
+// ── Module A Special Features
+import AdminResourceAnalytics from "../pages/admin/resource/AdminResourceAnalytics";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -59,16 +66,14 @@ const AppRoutes = () => {
         />
 
         {/* ========== TECHNICIAN ROUTES ========== */}
-        {/* <Route
+        <Route
           path="/technician/dashboard"
           element={
             <ProtectedRoute>
-              <RoleBasedRoute requiredRoles={["ROLE_TECHNICIAN"]}>
                 <TechnicianDashboard />
-              </RoleBasedRoute>
             </ProtectedRoute>
           }
-        /> */}
+        />
         
         <Route 
           path="/admin/bookings" 
@@ -124,6 +129,15 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Module A — Facilities Management */}
+        <Route path="/admin/facilities"         element={<ProtectedRoute><AdminFacilitiesPage /></ProtectedRoute>} />
+
+       {/* Module A Special Feature 1 — Resource Analytics */}
+        <Route path="/admin/resource-analytics" element={<ProtectedRoute><AdminResourceAnalytics /></ProtectedRoute>} />
+
+        {/* Module A — User Resource Catalogue (Feature 3 calendar is inside the detail modal) */}
+        <Route path="/user/resources"              element={<ProtectedRoute><UserResourceCatalogue /></ProtectedRoute>} />
 
 
         {/* User Booking Management Routes */}
