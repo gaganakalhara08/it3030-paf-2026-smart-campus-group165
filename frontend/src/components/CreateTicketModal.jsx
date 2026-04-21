@@ -22,6 +22,10 @@ const CreateTicketModal = ({ isOpen, onClose, onTicketCreated }) => {
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    contactPhone: '',
+    contactEmail: '',
+  });
 
   const categories = [
     'ELECTRICAL',
@@ -37,6 +41,22 @@ const CreateTicketModal = ({ isOpen, onClose, onTicketCreated }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'contactPhone') {
+      const typingRegex = /^\d{0,10}$/;
+      if (!typingRegex.test(value)) return;
+
+      const phoneRegex = /^\d{10}$/;
+      const phoneError = value && !phoneRegex.test(value) ? 'Contact number must be exactly 10 digits' : '';
+      setFieldErrors((prev) => ({ ...prev, contactPhone: phoneError }));
+    }
+
+    if (name === 'contactEmail') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailError = value && !emailRegex.test(value) ? 'Please enter a valid email address' : '';
+      setFieldErrors((prev) => ({ ...prev, contactEmail: emailError }));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -158,6 +178,10 @@ const CreateTicketModal = ({ isOpen, onClose, onTicketCreated }) => {
         contactEmail: '',
         contactPhone: '',
       });
+      setFieldErrors({
+        contactPhone: '',
+        contactEmail: '',
+      });
       setAttachments([]);
     } catch (err) {
       const message = err.message || 'Failed to create ticket';
@@ -256,6 +280,9 @@ const CreateTicketModal = ({ isOpen, onClose, onTicketCreated }) => {
                 disabled={loading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              {fieldErrors.contactEmail && (
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.contactEmail}</p>
+              )}
             </div>
 
             {/* Contact Phone */}
@@ -269,12 +296,13 @@ const CreateTicketModal = ({ isOpen, onClose, onTicketCreated }) => {
                 value={formData.contactPhone}
                 onChange={handleInputChange}
                 placeholder="10 digit number"
-                pattern="\d{10}"
-                maxLength={10}
                 required
                 disabled={loading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              {fieldErrors.contactPhone && (
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.contactPhone}</p>
+              )}
             </div>
           </div>
 

@@ -129,40 +129,40 @@ const TicketAllView = ({ userEmail, userName }) => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Ticket Management</h1>
-        <p className="text-gray-600 mt-1">Monitor and manage all maintenance tickets</p>
+        <h1 className="text-3xl font-bold text-white">Ticket Management</h1>
+        <p className="text-purple-300 mt-1">Monitor and manage all maintenance tickets</p>
       </div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-600 text-sm font-medium">Total Tickets</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+        <div className="bg-slate-800 p-6 rounded-lg border border-purple-500 border-opacity-30">
+          <p className="text-purple-300 text-sm font-medium">Total Tickets</p>
+          <p className="text-3xl font-bold text-white mt-1">{stats.total}</p>
         </div>
-        <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-          <p className="text-blue-700 text-sm font-medium">Open</p>
-          <p className="text-3xl font-bold text-blue-900 mt-1">{stats.open}</p>
+        <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-500/40">
+          <p className="text-blue-300 text-sm font-medium">Open</p>
+          <p className="text-3xl font-bold text-blue-100 mt-1">{stats.open}</p>
         </div>
-        <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-          <p className="text-purple-700 text-sm font-medium">In Progress</p>
-          <p className="text-3xl font-bold text-purple-900 mt-1">{stats.inProgress}</p>
+        <div className="bg-purple-900/30 p-6 rounded-lg border border-purple-500/40">
+          <p className="text-purple-300 text-sm font-medium">In Progress</p>
+          <p className="text-3xl font-bold text-purple-100 mt-1">{stats.inProgress}</p>
         </div>
-        <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-          <p className="text-green-700 text-sm font-medium">Resolved</p>
-          <p className="text-3xl font-bold text-green-900 mt-1">{stats.resolved}</p>
+        <div className="bg-green-900/30 p-6 rounded-lg border border-green-500/40">
+          <p className="text-green-300 text-sm font-medium">Resolved</p>
+          <p className="text-3xl font-bold text-green-100 mt-1">{stats.resolved}</p>
         </div>
-        <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-          <p className="text-red-700 text-sm font-medium">Urgent</p>
-          <p className="text-3xl font-bold text-red-900 mt-1">{stats.urgent}</p>
+        <div className="bg-red-900/30 p-6 rounded-lg border border-red-500/40">
+          <p className="text-red-300 text-sm font-medium">Urgent</p>
+          <p className="text-3xl font-bold text-red-100 mt-1">{stats.urgent}</p>
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2">
+        <div className="mb-6 p-4 bg-red-900/20 border border-red-500/40 rounded-lg text-red-200 flex items-center gap-2">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
@@ -171,11 +171,11 @@ const TicketAllView = ({ userEmail, userName }) => {
       )}
 
       {/* Search and Filter */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+      <div className="bg-slate-800 p-4 rounded-lg border border-purple-500 border-opacity-30 mb-6">
         <div className="flex flex-col gap-4">
           {/* Search */}
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -183,7 +183,7 @@ const TicketAllView = ({ userEmail, userName }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by ticket ID, title, resource, or user..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 bg-slate-900/60 text-white border border-purple-400/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-purple-300/70"
             />
           </div>
 
@@ -195,8 +195,8 @@ const TicketAllView = ({ userEmail, userName }) => {
                 onClick={() => setFilterStatus(status)}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
                   filterStatus === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-700 text-purple-100 hover:bg-slate-600'
                 }`}
               >
                 {status === 'IN_PROGRESS' ? 'IN PROGRESS' : status}
@@ -210,24 +210,24 @@ const TicketAllView = ({ userEmail, userName }) => {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </div>
-          <p className="text-gray-600 mt-4">Loading tickets...</p>
+          <p className="text-purple-200 mt-4">Loading tickets...</p>
         </div>
       ) : filteredTickets.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border border-gray-200 border-dashed">
-          <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-16 bg-slate-800 rounded-lg border border-purple-500/30 border-dashed">
+          <svg className="w-16 h-16 mx-auto text-purple-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-gray-600 text-lg font-medium">No tickets found</p>
-          <p className="text-gray-500 mt-1">Try adjusting your search or filter criteria</p>
+          <p className="text-purple-100 text-lg font-medium">No tickets found</p>
+          <p className="text-purple-300 mt-1">Try adjusting your search or filter criteria</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+        <div className="bg-slate-800 rounded-lg border border-purple-500/30 shadow-sm overflow-x-auto">
           <table className="w-full min-w-[1100px] text-sm">
-            <thead className="bg-gray-100 text-gray-700">
+            <thead className="bg-slate-900/60 text-purple-200">
               <tr>
                 {/* <th className="p-3 text-left">TICKET ID</th> */}
                 <th className="p-3 text-left">SUBJECT</th>
@@ -245,17 +245,17 @@ const TicketAllView = ({ userEmail, userName }) => {
                 <tr
                   key={ticket.id}
                   onClick={() => handleViewTicket(ticket.id)}
-                  className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="border-t border-purple-500/20 hover:bg-slate-700/40 cursor-pointer transition-colors"
                 >
                   {/* <td className="p-3 font-medium text-blue-700">{ticket.id}</td> */}
                   <td className="p-3">
-                    <p className="font-semibold text-gray-900">{ticket.title}</p>
-                    <p className="text-xs text-gray-500 truncate max-w-[220px]">
+                    <p className="font-semibold text-white">{ticket.title}</p>
+                    <p className="text-xs text-purple-200 truncate max-w-[220px]">
                       {ticket.description}
                     </p>
                   </td>
                   <td className="p-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-slate-700 text-purple-100">
                       <span>{getCategoryEmoji(ticket.category)}</span>
                       <span>{ticket.category.replace('_', ' ')}</span>
                     </span>
@@ -270,19 +270,19 @@ const TicketAllView = ({ userEmail, userName }) => {
                       {ticket.priority}
                     </span>
                   </td>
-                  <td className="p-3 text-gray-800">{ticket.userName}</td>
+                  <td className="p-3 text-purple-100">{ticket.userName}</td>
                   <td className="p-3">
-                    <p className="font-medium text-gray-800">{ticket.resourceName}</p>
-                    <p className="text-xs text-gray-500">{ticket.resourceLocation}</p>
+                    <p className="font-medium text-white">{ticket.resourceName}</p>
+                    <p className="text-xs text-purple-200">{ticket.resourceLocation}</p>
                   </td>
                   <td className="p-3">
                     {ticket.assignedToName ? (
-                      <span className="text-blue-700 font-medium">{ticket.assignedToName}</span>
+                      <span className="text-blue-300 font-medium">{ticket.assignedToName}</span>
                     ) : (
-                      <span className="text-yellow-700 font-medium">Unassigned</span>
+                      <span className="text-yellow-300 font-medium">Unassigned</span>
                     )}
                   </td>
-                  <td className="p-3 text-gray-600">{formatDate(ticket.createdAt)}</td>
+                  <td className="p-3 text-purple-200">{formatDate(ticket.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
