@@ -20,6 +20,7 @@ import TicketAllView from "../pages/TicketAllView";
 import CreateTicketModal from "../components/CreateTicketModal";
 
 import Signup from "../pages/Signup";
+import UserManagement from "../pages/admin/user/UserManagement";
 
 const AppRoutes = () => {
   return (
@@ -56,6 +57,15 @@ const AppRoutes = () => {
                 <TicketAllView />
             </ProtectedRoute>
           }
+        />
+
+        <Route 
+          path="/admin/users" 
+          element={
+            <ProtectedRoute>
+              <UserManagement />
+            </ProtectedRoute>
+          } 
         />
 
         {/* ========== TECHNICIAN ROUTES ========== */}

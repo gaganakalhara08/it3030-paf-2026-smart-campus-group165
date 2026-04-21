@@ -39,18 +39,20 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
-                        .requestMatchers("/api/users/me/**").authenticated()
-                        .requestMatchers("/api/bookings/**").authenticated()
-                        .requestMatchers("/api/resources/**").authenticated()
-                        .requestMatchers("/api/bookings/admin/**").hasRole("ADMIN")
+                // ✅ ADD THIS LINE
+                .requestMatchers("/api/users/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/technician/**").hasAnyRole("TECHNICIAN", "ADMIN")
+                .requestMatchers("/api/bookings/**").authenticated()
+                .requestMatchers("/api/resources/**").authenticated()
+                .requestMatchers("/api/bookings/admin/**").hasRole("ADMIN")
 
-                        .anyRequest().authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/technician/**").hasAnyRole("TECHNICIAN", "ADMIN")
+
+                .anyRequest().authenticated()
                 )
 
                 .oauth2Login(oauth -> oauth
