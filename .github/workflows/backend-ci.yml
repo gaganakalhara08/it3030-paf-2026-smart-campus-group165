@@ -1,0 +1,67 @@
+name: Backend CI
+
+# Triggers: runs on every push and pull request to main or dev branches
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'backend/**'          # only run when backend files change
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    name: Build & Test Spring Boot
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Java 17 (matches your pom.xml)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven          # caches ~/.m2 between runs — speeds up builds
+
+      # 3. Make mvnw executable (needed on Linux runners)
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+        working-directory: backend/smartcampus
+
+      # 4. Run tests
+      - name: Run tests
+        run: ./mvnw test --batch-mode
+        working-directory: backend/smartcampus
+        env:
+          # Use H2 in-memory database for CI — no MySQL needed
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD:
+          SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          # Dummy JWT secret for CI
+          JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+          JWT_EXPIRATION: 86400000
+          # Dummy OAuth values — tests don't hit Google
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: dummy-client-id
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: dummy-secret
+
+      # 5. Compile and package the JAR (skips tests since we ran them above)
+      - name: Build JAR
+        run: ./mvnw package -DskipTests --batch-mode
+        working-directory: backend/smartcampus
+
+      # 6. Upload the built JAR as an artifact (downloadable from GitHub Actions UI)
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartcampus-jar
+          path: backend/smartcampus/target/*.jar
+          retention-days: 7

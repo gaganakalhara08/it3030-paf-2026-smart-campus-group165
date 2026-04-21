@@ -26,6 +26,7 @@ import java.util.Map;
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -103,7 +104,6 @@ public class BookingController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAnalytics(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
-        String adminEmail = getEmailFromToken(authHeader);
         Map<String, Object> analytics = bookingService.getAnalytics();
         return ResponseEntity.ok(analytics);
     }
@@ -117,9 +117,9 @@ public class BookingController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "bookingDate") String sortBy,
-            @RequestParam(defaultValue = "DESC") String sortDirection) {
+            @RequestParam(defaultValue = "DESC") @org.springframework.lang.NonNull String sortDirection) {
         
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase().strip());
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         
         Page<BookingResponseDTO> bookings = bookingService.getAllBookingsPaginated(

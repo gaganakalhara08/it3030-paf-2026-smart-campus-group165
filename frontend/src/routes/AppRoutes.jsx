@@ -21,44 +21,51 @@ import CreateTicketModal from "../components/CreateTicketModal";
 
 import Signup from "../pages/Signup";
 
-const AppRoutes = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        
-        {/* Protected Routes */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* Admin Routes */}
-        <Route 
-          path="/admin/dashboard" 
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
+// ── Module A: Facilities & Assets Catalogue
+import AdminFacilitiesPage from "../pages/admin/resource/AdminFacilitiesPage";
+import UserResourceCatalogue from "../pages/user/resource/UserResourceCatalogue";
 
-        <Route
-          path="/admin/tickets"
-          element={
-            <ProtectedRoute>
-                <TicketAllView />
-            </ProtectedRoute>
-          }
-        />
+// ── Module A Special Features
+import AdminResourceAnalytics from "../pages/admin/resource/AdminResourceAnalytics";
 
-        {/* ========== TECHNICIAN ROUTES ========== */}
+
+const wrap = (Component) => (
+  <ProtectedRoute><Component /></ProtectedRoute>
+);
+
+const AppRoutes = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/login"  element={<Login />} />
+      <Route path="/"       element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Generic dashboard */}
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+      {/* ── Admin routes ── */}
+      <Route path="/admin/dashboard"          element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/bookings"           element={<ProtectedRoute><AdminBookingDashboard /></ProtectedRoute>} />
+      <Route path="/admin/analytics"          element={<ProtectedRoute><AdminAnalyticsDashboard /></ProtectedRoute>} />
+      <Route path="/admin/users"              element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+
+      {/* Module A — Facilities Management */}
+      <Route path="/admin/facilities"         element={<ProtectedRoute><AdminFacilitiesPage /></ProtectedRoute>} />
+
+      {/* Module A Special Feature 1 — Resource Analytics */}
+      <Route path="/admin/resource-analytics" element={<ProtectedRoute><AdminResourceAnalytics /></ProtectedRoute>} />
+
+      {/* ── User routes ── */}
+      <Route path="/user/dashboard"              element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+      <Route path="/user/bookings/dashboard"     element={<ProtectedRoute><BookingDashboard /></ProtectedRoute>} />
+      <Route path="/user/bookings/create"        element={<ProtectedRoute><CreateBooking /></ProtectedRoute>} />
+      <Route path="/user/bookings/:id/check-in"  element={<ProtectedRoute><BookingCheckIn /></ProtectedRoute>} />
+      <Route path="/user/bookings/:id"           element={<ProtectedRoute><BookingDetails /></ProtectedRoute>} />
+
+      {/* Module A — User Resource Catalogue (Feature 3 calendar is inside the detail modal) */}
+      <Route path="/user/resources"              element={<ProtectedRoute><UserResourceCatalogue /></ProtectedRoute>} />
+
+              {/* ========== TECHNICIAN ROUTES ========== */}
         <Route
           path="/technician/dashboard"
           element={
@@ -76,95 +83,8 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
-
-        <Route 
-          path="/admin/analytics" 
-          element={
-            <ProtectedRoute>
-              <AdminAnalyticsDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* User Routes */}
-        <Route 
-          path="/user/dashboard" 
-          element={
-            <ProtectedRoute>
-              <UserDashboard />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route
-          path="/user/dashboard/tickets"
-          element={
-            <ProtectedRoute>
-              <TicketStudentView />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/user/dashboard/create"
-          element={
-            <ProtectedRoute>
-              <CreateTicketModal />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/user/dashboard/commnet"
-          element={
-            <ProtectedRoute>
-              <TicketCommentSection />
-            </ProtectedRoute>
-          }
-        />
-
-
-        {/* User Booking Management Routes */}
-        <Route 
-          path="/user/bookings/dashboard" 
-          element={
-            <ProtectedRoute>
-              <BookingDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/user/bookings/create" 
-          element={
-            <ProtectedRoute>
-              <CreateBooking />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/user/bookings/:id/check-in" 
-          element={
-            <ProtectedRoute>
-              <BookingCheckIn />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/user/bookings/:id" 
-          element={
-            <ProtectedRoute>
-              <BookingDetails />
-            </ProtectedRoute>
-          } 
-        />
-
-        
-      </Routes>
-    </BrowserRouter>
-  );
-};
+    </Routes>
+  </BrowserRouter>
+);
 
 export default AppRoutes;

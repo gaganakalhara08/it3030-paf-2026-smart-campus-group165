@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, LayoutDashboard, Plus, Home } from "lucide-react";
+import { LogOut, LayoutDashboard, Plus, Home, Building2 } from "lucide-react";
 
 const UserHeader = () => {
   const navigate = useNavigate();
@@ -17,13 +17,21 @@ const UserHeader = () => {
           <h1 className="text-3xl font-bold text-gray-800">Smart Campus Portal</h1>
           <p className="text-gray-600 text-sm mt-1">Manage all your campus resources and requests</p>
         </div>
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center flex-wrap">
           <button
             onClick={() => navigate("/user/dashboard")}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
           >
             <Home size={16} />
-            User Dashboard
+            Dashboard
+          </button>
+          {/* Module A — Resource Catalogue */}
+          <button
+            onClick={() => navigate("/user/resources")}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
+          >
+            <Building2 size={16} />
+            Browse Resources
           </button>
 
           <button
@@ -39,7 +47,7 @@ const UserHeader = () => {
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
           >
             <LayoutDashboard size={16} />
-            Booking Dashboard
+            My Bookings
           </button>
           <button
             onClick={() => navigate("/user/bookings/create")}
