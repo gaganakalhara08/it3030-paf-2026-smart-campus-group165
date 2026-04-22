@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class DatabaseMigration {
 
-    private static final String MIGRATION_NAME = "booking-resource-integration-v1";
+    private static final String MIGRATION_NAME = "booking-resource-integration-v2";
 
     private final JdbcTemplate jdbcTemplate;
 
