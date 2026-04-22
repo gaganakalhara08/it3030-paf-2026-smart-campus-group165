@@ -1,29 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Clock, MapPin, Users, Download } from "lucide-react";
 import toast from "react-hot-toast";
+
+const API_BASE_URL =
+  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8080/api"
+    : `http://${window.location.hostname}:8080/api`;
 
 const BookingCheckIn = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [qrCanvas, setQrCanvas] = useState(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     fetchBooking();
   }, [id]);
+
+  useEffect(() => {
+    if (booking?.status === "APPROVED" && canvasRef.current) {
+      generateQRCode(booking);
+    }
+  }, [booking]);
 
   const fetchBooking = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`http://localhost:8080/api/bookings/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -33,11 +44,6 @@ const BookingCheckIn = () => {
 
       const data = await response.json();
       setBooking(data);
-      
-      // Generate QR code
-      if (data.status === "APPROVED") {
-        generateQRCode(data);
-      }
     } catch (error) {
       console.error("Error fetching booking:", error);
       toast.error("Failed to load booking details");
@@ -49,15 +55,11 @@ const BookingCheckIn = () => {
 
   const generateQRCode = async (bookingData) => {
     const QRCode = (await import("qrcode")).default;
-    const canvas = document.getElementById("qrCanvas");
-    
+    const canvas = canvasRef.current;
+
     if (canvas) {
-      const qrData = JSON.stringify({
-        bookingId: bookingData.id,
-        resourceName: bookingData.resourceName,
-        date: bookingData.bookingDate,
-        time: `${bookingData.startTime} - ${bookingData.endTime}`,
-      });
+      // Encode a URL (not JSON text) so phone scanners open it directly.
+      const qrData = `${window.location.origin}/user/bookings/check-in/${bookingData.id}`;
 
       try {
         await QRCode.toCanvas(canvas, qrData, {
@@ -68,7 +70,6 @@ const BookingCheckIn = () => {
           width: 256,
           color: { dark: "#000000", light: "#ffffff" },
         });
-        setQrCanvas(canvas);
       } catch (error) {
         console.error("Error generating QR code:", error);
         toast.error("Failed to generate QR code");
@@ -79,11 +80,11 @@ const BookingCheckIn = () => {
   const handleCheckIn = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:8080/api/bookings/${id}/check-in`, {
+      const response = await fetch(`${API_BASE_URL}/bookings/${id}/check-in`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -100,10 +101,10 @@ const BookingCheckIn = () => {
   };
 
   const downloadQR = () => {
-    if (qrCanvas) {
+    if (canvasRef.current) {
       const link = document.createElement("a");
       link.download = `booking-${id}-qr.png`;
-      link.href = qrCanvas.toDataURL();
+      link.href = canvasRef.current.toDataURL();
       link.click();
       toast.success("QR code downloaded!");
     }
@@ -137,7 +138,6 @@ const BookingCheckIn = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <button
           onClick={() => navigate("/user/bookings/dashboard")}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8"
@@ -146,30 +146,23 @@ const BookingCheckIn = () => {
           <span>Back to Dashboard</span>
         </button>
 
-        {/* Main Card */}
         <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* Status Badge */}
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Booking Check-In</h1>
             <span
               className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                isApproved
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                isApproved ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
               }`}
             >
               {booking.status}
             </span>
           </div>
 
-          {/* Booking Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="space-y-4">
               <div>
                 <p className="text-gray-500 text-sm mb-1">Resource</p>
-                <p className="text-gray-800 text-lg font-semibold">
-                  {booking.resourceName}
-                </p>
+                <p className="text-gray-800 text-lg font-semibold">{booking.resourceName}</p>
                 <p className="text-gray-600 text-sm">{booking.resourceType}</p>
               </div>
 
@@ -177,9 +170,7 @@ const BookingCheckIn = () => {
                 <MapPin size={18} className="text-blue-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Location</p>
-                  <p className="text-gray-800 font-semibold">
-                    {booking.resourceLocation}
-                  </p>
+                  <p className="text-gray-800 font-semibold">{booking.resourceLocation}</p>
                 </div>
               </div>
             </div>
@@ -189,9 +180,7 @@ const BookingCheckIn = () => {
                 <Clock size={18} className="text-blue-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Date & Time</p>
-                  <p className="text-gray-800 font-semibold">
-                    {booking.bookingDate}
-                  </p>
+                  <p className="text-gray-800 font-semibold">{booking.bookingDate}</p>
                   <p className="text-gray-600 text-sm">
                     {booking.startTime} - {booking.endTime}
                   </p>
@@ -202,30 +191,24 @@ const BookingCheckIn = () => {
                 <Users size={18} className="text-blue-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Expected Attendees</p>
-                  <p className="text-gray-800 font-semibold">
-                    {booking.expectedAttendees} people
-                  </p>
+                  <p className="text-gray-800 font-semibold">{booking.expectedAttendees} people</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Purpose */}
           <div className="mb-8 p-4 bg-gray-50 rounded-lg">
             <p className="text-gray-500 text-sm mb-2">Purpose</p>
             <p className="text-gray-800">{booking.purpose}</p>
           </div>
 
-          {/* QR Code Section */}
           {isApproved && (
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 border-2 border-blue-200">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">
-                Check-In QR Code
-              </h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Check-In QR Code</h2>
 
               <div className="flex flex-col items-center gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-md">
-                  <canvas id="qrCanvas" />
+                  <canvas ref={canvasRef} id="qrCanvas" />
                 </div>
 
                 <button
@@ -243,7 +226,6 @@ const BookingCheckIn = () => {
             </div>
           )}
 
-          {/* Check-In Button */}
           {isApproved && (
             <button
               onClick={handleCheckIn}

@@ -3,28 +3,20 @@ import { QRCodeSVG } from "qrcode.react";
 import { Download, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 
-const QRCodeDisplay = ({ bookingId, bookingUrl }) => {
+const QRCodeDisplay = ({ qrValue }) => {
   const qrRef = React.useRef();
 
-  // Ensure bookingUrl is a string
-  const finalUrl = typeof bookingUrl === "string" ? bookingUrl : `http://172.20.10.2:5173/user/bookings/${bookingId}`;
-
-  // Convert localhost to IP address for mobile access
-  const getAccessibleUrl = () => {
-    if (finalUrl && finalUrl.includes("localhost")) {
-      return finalUrl.replace("localhost:5173", "172.20.10.2:5173");
-    }
-    return finalUrl;
-  };
-
-  const accessibleUrl = getAccessibleUrl();
+  if (!qrValue || typeof qrValue !== "string") {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-gray-100">
+        <p className="text-red-500 text-center">Error: Invalid QR value</p>
+      </div>
+    );
+  }
 
   const downloadQRCode = () => {
-    const svg = qrRef.current.querySelector("svg");
-    if (!svg) {
-      toast.error("QR code not found");
-      return;
-    }
+    const svg = qrRef.current?.querySelector("svg");
+    if (!svg) return;
     
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement("canvas");
@@ -37,76 +29,35 @@ const QRCodeDisplay = ({ bookingId, bookingUrl }) => {
       ctx.drawImage(img, 0, 0);
       const pngUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.download = `booking-${bookingId}.png`;
+      link.download = `booking-qr.png`;
       link.href = pngUrl;
       link.click();
       toast.success("QR Code downloaded!");
     };
-    
     img.src = "data:image/svg+xml;base64," + btoa(svgData);
-  };
-
-  const copyBookingUrl = () => {
-    navigator.clipboard.writeText(accessibleUrl);
-    toast.success("Booking URL copied to clipboard!");
   };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-gray-100">
       <h3 className="text-lg font-bold text-gray-800 mb-4">QR Code</h3>
-      <p className="text-sm text-gray-600 mb-2">
-        Scan this QR code with your mobile phone to view booking details
-      </p>
-      <p className="text-xs text-gray-500 mb-6">
-        📱 Make sure your phone is connected to the same WiFi network (172.20.10.x)
-      </p>
+      <p className="text-sm text-gray-600 mb-6">Scan with your mobile phone</p>
 
       <div className="flex flex-col items-center gap-6">
-        {/* QR Code Display */}
-        <div
-          ref={qrRef}
-          className="p-4 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center"
+        <div ref={qrRef} className="p-4 bg-white border-2 border-gray-200 rounded-lg">
+          <QRCodeSVG value={qrValue} size={256} level="H" includeMargin={true} />
+        </div>
+
+        <button
+          onClick={downloadQRCode}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold"
         >
-          {accessibleUrl && typeof accessibleUrl === "string" ? (
-            <QRCodeSVG
-              value={accessibleUrl}
-              size={256}
-              level="H"
-              includeMargin={true}
-            />
-          ) : (
-            <p className="text-red-500">Error: Invalid QR code URL</p>
-          )}
-        </div>
+          <Download size={18} className="inline mr-2" />
+          Download
+        </button>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 w-full flex-wrap justify-center">
-          <button
-            onClick={downloadQRCode}
-            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
-          >
-            <Download size={18} />
-            Download QR
-          </button>
-          <button
-            onClick={copyBookingUrl}
-            className="flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
-          >
-            <Copy size={18} />
-            Copy URL
-          </button>
-        </div>
-
-        {/* Booking URL */}
-        <div className="w-full bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-          <p className="text-xs text-gray-600 mb-1 font-semibold">📍 Mobile-Accessible URL:</p>
-          <p className="text-sm text-blue-900 break-all font-mono bg-white p-2 rounded border border-blue-100">
-            {accessibleUrl}
-          </p>
-          <p className="text-xs text-gray-600 mt-3">
-            ✅ This URL works on your mobile phone over WiFi<br/>
-            💡 Your WiFi network: <span className="font-semibold">172.20.10.x</span>
-          </p>
+        <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <p className="text-xs text-gray-600 mb-1">📍 URL:</p>
+          <p className="text-xs text-gray-800 break-all font-mono">{qrValue}</p>
         </div>
       </div>
     </div>

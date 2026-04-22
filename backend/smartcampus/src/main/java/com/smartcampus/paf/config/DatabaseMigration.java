@@ -34,9 +34,44 @@ public class DatabaseMigration {
             } catch (Exception e) {
                 log.info("Foreign key constraint doesn't exist or already removed: {}", e.getMessage());
             }
+
+            // Step 3: Drop resource-related columns (they belong to Resource table, not Booking)
+            log.info("Step 3: Removing resource-related columns from bookings table...");
             
-            // Step 3: Add the new foreign key constraint
-            log.info("Step 3: Adding new foreign key constraint...");
+            // Drop capacity column
+            try {
+                jdbcTemplate.execute("ALTER TABLE bookings DROP COLUMN capacity");
+                log.info("Dropped capacity column");
+            } catch (Exception e) {
+                log.info("Capacity column doesn't exist: {}", e.getMessage());
+            }
+            
+            // Drop resource_name column
+            try {
+                jdbcTemplate.execute("ALTER TABLE bookings DROP COLUMN resource_name");
+                log.info("Dropped resource_name column");
+            } catch (Exception e) {
+                log.info("resource_name column doesn't exist: {}", e.getMessage());
+            }
+            
+            // Drop resource_type column
+            try {
+                jdbcTemplate.execute("ALTER TABLE bookings DROP COLUMN resource_type");
+                log.info("Dropped resource_type column");
+            } catch (Exception e) {
+                log.info("resource_type column doesn't exist: {}", e.getMessage());
+            }
+            
+            // Drop resource_location column
+            try {
+                jdbcTemplate.execute("ALTER TABLE bookings DROP COLUMN resource_location");
+                log.info("Dropped resource_location column");
+            } catch (Exception e) {
+                log.info("resource_location column doesn't exist: {}", e.getMessage());
+            }
+            
+            // Step 4: Add the new foreign key constraint
+            log.info("Step 4: Adding new foreign key constraint...");
             try {
                 jdbcTemplate.execute(
                     "ALTER TABLE bookings ADD CONSTRAINT fk_booking_resource " +
@@ -47,8 +82,8 @@ public class DatabaseMigration {
                 log.warn("Could not add foreign key constraint: {}", e.getMessage());
             }
             
-            // Step 4: Verify the constraint
-            log.info("Step 4: Verifying foreign key constraint...");
+            // Step 5: Verify the constraint
+            log.info("Step 5: Verifying foreign key constraint...");
             try {
                 Integer constraintCount = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE " +
@@ -68,7 +103,7 @@ public class DatabaseMigration {
             
         } catch (Exception e) {
             log.error("Error during database migration: {}", e.getMessage(), e);
-            throw new RuntimeException("Database migration failed: " + e.getMessage(), e);
+            log.warn("Database migration encountered an error, but application will continue");
         }
     }
 }
