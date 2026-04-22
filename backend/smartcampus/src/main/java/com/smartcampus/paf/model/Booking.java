@@ -24,20 +24,9 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @Column(nullable = false)
-    private String resourceId;
-    
-    @Column(nullable = false)
-    private String resourceName;
-    
-    @Column(nullable = false)
-    private String resourceType;
-    
-    @Column(nullable = false)
-    private String resourceLocation;
-    
-    @Column(nullable = false)
-    private Integer capacity;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "resource_id", nullable = false)
+    private Resource resource;
     
     @Column(nullable = false)
     private LocalDate bookingDate;
@@ -64,7 +53,7 @@ public class Booking {
     private String rejectedBy;
     private LocalDateTime rejectedAt;
     
-    // Check-in fields - Changed from boolean to Boolean to allow NULL values
+    // Check-in fields
     @Column(name = "checked_in")
     private Boolean checkedIn;
     

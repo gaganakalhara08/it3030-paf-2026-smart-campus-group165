@@ -22,7 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findByResourceId(String resourceId);
     List<Booking> findByUserAndStatus(User user, BookingStatus status);
 
-    @Query("SELECT b FROM Booking b WHERE b.resourceId = :resourceId " +
+    @Query("SELECT b FROM Booking b WHERE b.resource.id = :resourceId " +
             "AND b.bookingDate = :date " +
             "AND b.status IN ('PENDING', 'APPROVED') " +
             "AND ((b.startTime <= :endTime AND b.endTime >= :startTime))")
@@ -33,7 +33,7 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 
     @Query("SELECT b FROM Booking b WHERE " +
             "(:status IS NULL OR b.status = :status) AND " +
-            "(:resourceId IS NULL OR b.resourceId = :resourceId) AND " +
+            "(:resourceId IS NULL OR b.resource.id = :resourceId) AND " +
             "(:userId IS NULL OR b.user.id = :userId)")
     List<Booking> findBookingsWithFilters(@Param("status") BookingStatus status,
             @Param("resourceId") String resourceId,
@@ -41,7 +41,7 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 
     @Query("SELECT b FROM Booking b WHERE " +
             "(:status IS NULL OR b.status = :status) AND " +
-            "(:resourceId IS NULL OR b.resourceId = :resourceId) AND " +
+            "(:resourceId IS NULL OR b.resource.id = :resourceId) AND " +
             "(:userId IS NULL OR b.user.id = :userId)")
     Page<Booking> findBookingsWithFiltersPaginated(@Param("status") BookingStatus status,
             @Param("resourceId") String resourceId,
@@ -51,33 +51,23 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     @Query("SELECT b FROM Booking b ORDER BY b.createdAt DESC")
     List<Booking> findAllOrderByCreatedAtDesc();
 
-    // ── Feature 1: Analytics queries ─────────────────────────────────────────
-
-    // Count bookings grouped by resourceId — for top resources chart
-    @Query("SELECT b.resourceId, b.resourceName, b.resourceType, COUNT(b) as cnt " +
-           "FROM Booking b GROUP BY b.resourceId, b.resourceName, b.resourceType " +
+    @Query("SELECT b.resource.id, b.resource.name, b.resource.type, COUNT(b) as cnt " +
+           "FROM Booking b GROUP BY b.resource.id, b.resource.name, b.resource.type " +
            "ORDER BY cnt DESC")
     List<Object[]> findBookingCountPerResource();
 
-    // Count bookings grouped by resourceType
-    @Query("SELECT b.resourceType, COUNT(b) FROM Booking b GROUP BY b.resourceType")
+    @Query("SELECT b.resource.type, COUNT(b) FROM Booking b GROUP BY b.resource.type")
     List<Object[]> findBookingCountPerType();
 
-    // Count bookings grouped by start hour (peak hours)
     @Query("SELECT HOUR(b.startTime), COUNT(b) FROM Booking b GROUP BY HOUR(b.startTime)")
     List<Object[]> findBookingCountPerHour();
 
-    // Count by status for summary
     long countByStatus(BookingStatus status);
 
-    // All approved bookings for a resource (for utilisation calc)
-    @Query("SELECT b FROM Booking b WHERE b.resourceId = :resourceId AND b.status = 'APPROVED'")
+    @Query("SELECT b FROM Booking b WHERE b.resource.id = :resourceId AND b.status = 'APPROVED'")
     List<Booking> findApprovedByResourceId(@Param("resourceId") String resourceId);
 
-    // ── Feature 3: Availability calendar query ────────────────────────────────
-
-    // Bookings for a resource on a specific date (PENDING + APPROVED only)
-    @Query("SELECT b FROM Booking b WHERE b.resourceId = :resourceId " +
+    @Query("SELECT b FROM Booking b WHERE b.resource.id = :resourceId " +
            "AND b.bookingDate = :date " +
            "AND b.status IN ('PENDING', 'APPROVED') " +
            "ORDER BY b.startTime ASC")

@@ -4,10 +4,13 @@ import com.smartcampus.paf.dto.request.BookingRequestDTO;
 import com.smartcampus.paf.dto.response.BookingResponseDTO;
 import com.smartcampus.paf.exception.*;
 import com.smartcampus.paf.model.Booking;
+import com.smartcampus.paf.model.Resource;
 import com.smartcampus.paf.model.User;
 import com.smartcampus.paf.model.enums.BookingStatus;
+import com.smartcampus.paf.model.enums.ResourceStatus;
 import com.smartcampus.paf.model.enums.Role;
 import com.smartcampus.paf.repository.BookingRepository;
+import com.smartcampus.paf.repository.ResourceRepository;
 import com.smartcampus.paf.repository.UserRepository;
 import com.smartcampus.paf.service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +32,25 @@ public class BookingServiceImpl implements BookingService {
     
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
+    private final ResourceRepository resourceRepository;
     
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public BookingResponseDTO createBooking(BookingRequestDTO request, String userEmail) {
+        // Validate user exists
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
+        // Validate resource exists
+        Resource resource = resourceRepository.findById(request.getResourceId())
+                .orElseThrow(() -> new RuntimeException("Resource not found with ID: " + request.getResourceId()));
+        
+        // Validate resource is ACTIVE
+        if (resource.getStatus() != ResourceStatus.ACTIVE) {
+            throw new RuntimeException("Resource is not available. Status: " + resource.getStatus());
+        }
+        
+        // Validate time logic
         if (request.getStartTime().isAfter(request.getEndTime())) {
             throw new InvalidBookingRequestException("Start time must be before end time");
         }
@@ -44,19 +59,25 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidBookingRequestException("Start time cannot be equal to end time");
         }
         
+        // Validate capacity
+        if (request.getExpectedAttendees() != null && request.getExpectedAttendees() > resource.getCapacity()) {
+            throw new InvalidBookingRequestException(
+                "Expected attendees (" + request.getExpectedAttendees() + 
+                ") exceeds resource capacity (" + resource.getCapacity() + ")"
+            );
+        }
+        
+        // Check for conflicts
         if (checkConflict(request.getResourceId(), request.getBookingDate(), 
                           request.getStartTime(), request.getEndTime())) {
             throw new TimeSlotConflictException(request.getResourceId(), request.getBookingDate(), 
                                                   request.getStartTime(), request.getEndTime());
         }
         
+        // Create booking
         Booking booking = new Booking();
         booking.setUser(user);
-        booking.setResourceId(request.getResourceId());
-        booking.setResourceName(request.getResourceName());
-        booking.setResourceType(request.getResourceType());
-        booking.setResourceLocation(request.getResourceLocation());
-        booking.setCapacity(request.getCapacity());
+        booking.setResource(resource);
         booking.setBookingDate(request.getBookingDate());
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
@@ -223,6 +244,7 @@ public class BookingServiceImpl implements BookingService {
         analytics.put("pendingBookings", pendingCount);
         
         double avgAttendees = allBookings.stream()
+                .filter(b -> b.getExpectedAttendees() != null)
                 .mapToInt(Booking::getExpectedAttendees)
                 .average()
                 .orElse(0);
@@ -230,7 +252,7 @@ public class BookingServiceImpl implements BookingService {
         
         List<Map<String, Object>> topResources = allBookings.stream()
                 .collect(Collectors.groupingBy(
-                        Booking::getResourceName,
+                        b -> b.getResource().getName(),
                         Collectors.counting()
                 ))
                 .entrySet().stream()
@@ -292,10 +314,28 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidBookingRequestException("Only pending bookings can be updated");
         }
         
+        // Validate resource
+        Resource resource = resourceRepository.findById(request.getResourceId())
+                .orElseThrow(() -> new RuntimeException("Resource not found with ID: " + request.getResourceId()));
+        
+        if (resource.getStatus() != ResourceStatus.ACTIVE) {
+            throw new RuntimeException("Resource is not available. Status: " + resource.getStatus());
+        }
+        
+        // Validate time logic
         if (request.getStartTime().isAfter(request.getEndTime())) {
             throw new InvalidBookingRequestException("Start time must be before end time");
         }
         
+        // Validate capacity
+        if (request.getExpectedAttendees() != null && request.getExpectedAttendees() > resource.getCapacity()) {
+            throw new InvalidBookingRequestException(
+                "Expected attendees (" + request.getExpectedAttendees() + 
+                ") exceeds resource capacity (" + resource.getCapacity() + ")"
+            );
+        }
+        
+        // Check for conflicts (excluding current booking)
         List<Booking> conflicts = bookingRepository.findConflictingBookings(
             request.getResourceId(), request.getBookingDate(), 
             request.getStartTime(), request.getEndTime());
@@ -307,11 +347,8 @@ public class BookingServiceImpl implements BookingService {
                                                   request.getStartTime(), request.getEndTime());
         }
         
-        booking.setResourceId(request.getResourceId());
-        booking.setResourceName(request.getResourceName());
-        booking.setResourceType(request.getResourceType());
-        booking.setResourceLocation(request.getResourceLocation());
-        booking.setCapacity(request.getCapacity());
+        // Update booking
+        booking.setResource(resource);
         booking.setBookingDate(request.getBookingDate());
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
@@ -370,16 +407,17 @@ public class BookingServiceImpl implements BookingService {
     }
     
     private BookingResponseDTO mapToResponse(Booking booking) {
+        Resource resource = booking.getResource();
         return new BookingResponseDTO(
             booking.getId(),
             booking.getUser().getId(),
             booking.getUser().getEmail(),
             booking.getUser().getName(),
-            booking.getResourceId(),
-            booking.getResourceName(),
-            booking.getResourceType(),
-            booking.getResourceLocation(),
-            booking.getCapacity(),
+            resource.getId(),
+            resource.getName(),
+            resource.getType().toString(),
+            resource.getLocation(),
+            resource.getCapacity(),
             booking.getBookingDate(),
             booking.getStartTime(),
             booking.getEndTime(),

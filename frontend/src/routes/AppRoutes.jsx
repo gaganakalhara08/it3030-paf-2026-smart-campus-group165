@@ -153,8 +153,17 @@ const AppRoutes = () => {
         {/* Module A — Facilities Management */}
         <Route path="/admin/facilities"         element={<ProtectedRoute><AdminFacilitiesPage /></ProtectedRoute>} />
 
-       {/* Module A Special Feature 1 — Resource Analytics */}
-        <Route path="/admin/resource-analytics" element={<ProtectedRoute><AdminResourceAnalytics /></ProtectedRoute>} />
+      {/* Module A Special Feature 1 — Resource Analytics */}
+      <Route path="/admin/resource-analytics" element={<ProtectedRoute><AdminResourceAnalytics /></ProtectedRoute>} />
+
+      {/* ── User routes ── */}
+      <Route path="/user/dashboard"              element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+      <Route path="/user/bookings/dashboard"     element={<ProtectedRoute><BookingDashboard /></ProtectedRoute>} />
+      <Route path="/user/bookings/create"        element={<ProtectedRoute><CreateBooking /></ProtectedRoute>} />
+      <Route path="/user/bookings/:id/check-in"  element={<ProtectedRoute><BookingCheckIn /></ProtectedRoute>} />
+      {/* Backward-compatible alias for older QR codes */}
+      <Route path="/user/bookings/check-in/:id"  element={<ProtectedRoute><BookingCheckIn /></ProtectedRoute>} />
+      <Route path="/user/bookings/:id"           element={<ProtectedRoute><BookingDetails /></ProtectedRoute>} />
 
         {/* Module A — User Resource Catalogue (Feature 3 calendar is inside the detail modal) */}
         <Route path="/user/resources"              element={<ProtectedRoute><UserResourceCatalogue /></ProtectedRoute>} />
