@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, MapPin, Clock, Trash2, Edit, Eye, Plus, AlertCircle, CheckCircle, XCircle, LogOut, LayoutDashboard, Home, QrCode } from "lucide-react";
 import toast from "react-hot-toast";
+import BookingsMonthCalendar from "../../../components/booking/BookingsMonthCalendar";
 
 const BookingDashboard = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     fetchBookings();
@@ -141,6 +143,9 @@ const BookingDashboard = () => {
   };
 
   const stats = calculateStats();
+  const shownBookings = dateFilter
+    ? bookings.filter((b) => (b.bookingDate || "").slice(0, 10) === dateFilter)
+    : bookings;
 
   const StatCard = ({ icon: Icon, label, count, color, bgColor }) => (
     <div className={`${bgColor} rounded-lg p-6 flex items-center gap-4 shadow-md hover:shadow-lg transition-all`}>
@@ -281,19 +286,32 @@ const BookingDashboard = () => {
             </button>
           </div>
 
+          {/* Calendar Filter */}
+          <div className="mb-6">
+            <BookingsMonthCalendar
+              bookings={bookings}
+              selectedDate={dateFilter}
+              onSelectDate={setDateFilter}
+            />
+          </div>
+
           {/* Bookings Grid */}
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
-          ) : bookings.length === 0 ? (
+          ) : shownBookings.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg shadow">
               <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
                 No bookings found
               </h3>
               <p className="text-gray-500 mb-6">
-                {statusFilter ? "No bookings match this filter. " : "Create your first booking to get started. "}
+                {dateFilter
+                  ? `No bookings on ${dateFilter}.`
+                  : statusFilter
+                    ? "No bookings match this filter. "
+                    : "Create your first booking to get started. "}
               </p>
               <button
                 onClick={() => navigate("/user/bookings/create")}
@@ -304,7 +322,7 @@ const BookingDashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {bookings.map((booking) => (
+              {shownBookings.map((booking) => (
                 <div
                   key={booking.id}
                   className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-6 flex flex-col"

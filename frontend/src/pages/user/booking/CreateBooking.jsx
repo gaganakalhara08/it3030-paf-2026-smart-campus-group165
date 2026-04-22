@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MapPin, Send, Clock, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_BASE_URL, getAuthHeaders } from "../../../services/api";
+import ResourceAvailabilityCalendar from "../../../components/resource/ResourceAvailabilityCalendar";
 
 const CreateBooking = () => {
   const navigate = useNavigate();
@@ -290,6 +291,13 @@ const CreateBooking = () => {
                   <p className="font-semibold">{selectedResource.capacity} people</p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Calendar view for booked slots (per day) */}
+          {selectedResource && (
+            <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-xl p-6 hover:border-opacity-60 transition-all">
+              <ResourceAvailabilityCalendar resource={selectedResource} />
             </div>
           )}
 
