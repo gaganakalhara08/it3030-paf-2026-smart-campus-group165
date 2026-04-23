@@ -33,7 +33,7 @@ public class Notification {
     private String type;      // BOOKING / TICKET
     private String action;    // CREATED / APPROVED / RESOLVED
 
-    private Long referenceId;
+    private String referenceId;
 
     private boolean isRead = false;
 

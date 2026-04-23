@@ -11,8 +11,8 @@ public interface NotificationService {
                     String title,
                     String message,
                     String type,
-                    String action,
-                    Long referenceId);
+                    String action,  
+                    String referenceId);
 
     List<Notification> getUserNotifications(User user);
 

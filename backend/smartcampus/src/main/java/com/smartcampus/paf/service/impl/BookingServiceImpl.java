@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.smartcampus.paf.service.NotificationService;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
+    private final NotificationService notificationService;
     
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -86,6 +88,21 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.PENDING);
         
         Booking saved = bookingRepository.save(booking);
+
+        // 🔔 Notify Admin
+        userRepository.findAll().stream()
+                .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
+                .findFirst()
+                .ifPresent(admin ->
+                        notificationService.notifyUser(
+                                admin,
+                                "New Booking",
+                                "New booking created by " + user.getName(),
+                                "BOOKING",
+                                "CREATED",
+                                saved.getId()
+                        )
+                );
         return mapToResponse(saved);
     }
     
@@ -155,6 +172,16 @@ public class BookingServiceImpl implements BookingService {
         booking.setApprovedAt(LocalDateTime.now());
         
         Booking saved = bookingRepository.save(booking);
+
+        // 🔔 Notify User
+        notificationService.notifyUser(
+                booking.getUser(),
+                "Booking Approved",
+                "Your booking has been approved",
+                "BOOKING",
+                "APPROVED",
+                saved.getId()
+        );
         return mapToResponse(saved);
     }
     
@@ -174,6 +201,16 @@ public class BookingServiceImpl implements BookingService {
         booking.setRejectedAt(LocalDateTime.now());
         
         Booking saved = bookingRepository.save(booking);
+
+        // 🔔 Notify User
+        notificationService.notifyUser(
+                booking.getUser(),
+                "Booking Rejected",
+                "Your booking was rejected: " + reason,
+                "BOOKING",
+                "REJECTED",
+                saved.getId()
+        );
         return mapToResponse(saved);
     }
     

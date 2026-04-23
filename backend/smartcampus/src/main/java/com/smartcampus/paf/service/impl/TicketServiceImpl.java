@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.smartcampus.paf.service.NotificationService;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketAttachmentRepository attachmentRepository;
     private final TicketCommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
     
     // Helper method to convert Ticket to TicketResponseDTO
     private TicketResponseDTO convertToDTO(Ticket ticket, String currentUserEmail) {
@@ -174,6 +176,22 @@ public class TicketServiceImpl implements TicketService {
         
         // Save ticket first
         Ticket savedTicket = ticketRepository.save(ticket);
+        System.out.println("🚀 ABOUT TO CALL NOTIFICATION");
+
+        // 🔔 Notify Admin
+        userRepository.findAll().stream()
+                .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
+                .findFirst()
+                .ifPresent(admin ->
+                        notificationService.notifyUser(
+                                admin,
+                                "New Ticket",
+                                "New ticket created by " + user.getName(),
+                                "TICKET",
+                                "CREATED",
+                                savedTicket.getId()
+                        )
+                );
         
         // Handle attachments
         if (request.getAttachments() != null) {
@@ -293,6 +311,16 @@ public class TicketServiceImpl implements TicketService {
         }
         
         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        // 🔔 Notify User
+        notificationService.notifyUser(
+                ticket.getUser(),
+                "Ticket Updated",
+                "Your ticket status is now " + newStatus,
+                "TICKET",
+                newStatus.toString(),
+                updatedTicket.getId()
+        );
         return convertToDTO(updatedTicket, userEmail);
     }
     
@@ -347,6 +375,16 @@ public class TicketServiceImpl implements TicketService {
         
         ticket.setAssignedTo(assignTo);
         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        // 🔔 Notify Technician
+        notificationService.notifyUser(
+                assignTo,
+                "Ticket Assigned",
+                "A ticket has been assigned to you",
+                "TICKET",
+                "ASSIGNED",
+                updatedTicket.getId()
+        );
         
         return convertToDTO(updatedTicket, adminEmail);
     }

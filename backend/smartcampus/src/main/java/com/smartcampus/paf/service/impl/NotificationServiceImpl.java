@@ -23,7 +23,9 @@ public class NotificationServiceImpl implements NotificationService {
                            String message,
                            String type,
                            String action,
-                           Long referenceId) {
+                           String referenceId) {   // ✅ FIXED
+
+        System.out.println("🔥 NOTIFICATION METHOD CALLED");
 
         Notification notification = new Notification();
         notification.setUser(user);
@@ -31,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setMessage(message);
         notification.setType(type);
         notification.setAction(action);
-        notification.setReferenceId(referenceId);
+        notification.setReferenceId(referenceId); // ✅ String now
         notification.setRead(false);
 
         notificationRepository.save(notification);
