@@ -1,12 +1,20 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  Calendar, Bell, Ticket, Users, Building2, LogOut, ChevronRight, BarChart2
+  Calendar,
+  Bell,
+  Ticket,
+  Users,
+  Building2,
+  LogOut,
+  ChevronRight,
+  BarChart2,
 } from "lucide-react";
+import logo from "../../assets/logo.png"; // adjust path if needed
 
 const AdminSidebar = ({ onLogout }) => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
     {
@@ -14,94 +22,106 @@ const AdminSidebar = ({ onLogout }) => {
       label: "Booking Management",
       icon: Calendar,
       path: "/admin/bookings",
-      description: "Manage all bookings and approvals"
-    },
-    {
-      id: "notification-management",
-      label: "Notification Management",
-      icon: Bell,
-      path: "/admin/notifications",
-      description: "Send and manage notifications"
+      description: "Manage bookings and approvals",
     },
     {
       id: "ticket-management",
       label: "Ticket Management",
       icon: Ticket,
       path: "/admin/tickets",
-      description: "Handle support tickets"
+      description: "Handle support tickets",
     },
     {
       id: "user-management",
       label: "User Management",
       icon: Users,
       path: "/admin/users",
-      description: "Manage users and roles"
+      description: "Manage users and roles",
     },
     {
       id: "facilities-management",
       label: "Facilities Management",
       icon: Building2,
       path: "/admin/facilities",
-      description: "Manage campus resources"
+      description: "Manage resources",
     },
     {
       id: "resource-analytics",
       label: "Resource Analytics",
       icon: BarChart2,
       path: "/admin/resource-analytics",
-      description: "Usage trends & utilisation"
+      description: "Usage insights",
     },
   ];
 
   const isActive = (path) => location.pathname.startsWith(path);
 
   return (
-    <div className="w-64 bg-slate-800 min-h-screen border-r border-purple-500 border-opacity-30 flex flex-col">
-      {/* Logo/Header */}
-      <div className="p-6 border-b border-purple-500 border-opacity-30">
-        <h2 className="text-xl font-bold text-white">Smart Campus</h2>
-        <p className="text-purple-300 text-xs mt-1">Admin Portal</p>
+    <div className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-50">
+      
+      {/* 🔝 Logo Section (Clickable → Dashboard) */}
+      <div
+        onClick={() => navigate("/dashboard")}
+        className="px-6 py-5 border-b border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition"
+      >
+        <img src={logo} alt="logo" className="h-8 w-8 object-contain" />
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Campus Ops
+          </h2>
+          <p className="text-xs text-gray-400">Admin Portal</p>
+        </div>
       </div>
 
-      {/* Menu Items */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      {/* 📚 Navigation */}
+      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
-          const Icon   = item.icon;
+          const Icon = item.icon;
           const active = isActive(item.path);
-          
+
           return (
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${
                 active
-                  ? "bg-purple-600 text-white shadow-lg"
-                  : "text-purple-300 hover:bg-slate-700 hover:text-white"
+                  ? "bg-green-50 text-green-700"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
               }`}
             >
-              <Icon size={20} className={active ? "text-white" : "text-purple-400"} />
+              <Icon
+                size={20}
+                className={`${
+                  active ? "text-green-600" : "text-gray-400"
+                }`}
+              />
+
               <div className="flex-1 text-left">
-                <p className="font-semibold text-sm">{item.label}</p>
-                <p className={`text-xs ${active ? "text-purple-100" : "text-purple-400"}`}>
+                <p className="text-sm font-medium">{item.label}</p>
+                <p className="text-xs text-gray-400">
                   {item.description}
                 </p>
               </div>
-              {active && <ChevronRight size={18} />}
+
+              {active && (
+                <ChevronRight size={16} className="text-green-600" />
+              )}
             </button>
           );
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="px-4 py-6 border-t border-purple-500 border-opacity-30">
+      {/* 🔻 Logout */}
+      <div className="px-3 py-5 border-t border-gray-100">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-600 hover:text-white transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-all"
         >
           <LogOut size={20} />
-          <span className="font-semibold">Logout</span>
+          <span className="text-sm font-medium">Logout</span>
         </button>
       </div>
+
     </div>
   );
 };

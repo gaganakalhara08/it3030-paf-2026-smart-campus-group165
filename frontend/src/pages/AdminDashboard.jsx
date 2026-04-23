@@ -24,6 +24,7 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
+  // 🔹 Fetch user
   const fetchUserData = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
@@ -34,18 +35,21 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       setUser(data);
-      console.log("✅ User data:", data);
     } catch (error) {
       console.error("❌ Error fetching user:", error);
       toast.error("Failed to load user data");
     }
   };
 
+  // 🔹 Fetch stats
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookings/admin/all?page=0&size=1000`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/bookings/admin/all?page=0&size=1000`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch stats");
 
@@ -65,76 +69,104 @@ const AdminDashboard = () => {
     }
   };
 
+  // 🔹 Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     toast.success("Logged out successfully!");
     navigate("/login");
   };
 
+  
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Left Sidebar */}
-      <AdminSidebar onLogout={handleLogout} />
+  <div className="bg-gradient-to-r from-green-50 to-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm">
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-slate-800 shadow-lg border-b border-purple-500">
-          <div className="max-w-7xl mx-auto px-6 py-6 w-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-white">📊 Admin Dashboard</h1>
-                <p className="text-purple-300 mt-1">Manage bookings and system settings</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-white font-semibold">{user?.name || "Admin"}</p>
-                  <p className="text-purple-300 text-sm">{user?.email}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+    {/* 🔥 SIDEBAR */}
+    <AdminSidebar onLogout={handleLogout} />
+
+    {/* 🔥 MAIN CONTENT */}
+    <div className="ml-64 flex flex-col min-h-screen bg-gray-50">
+
+      {/* 🔝 HEADER */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm">
+        
+        {/* LEFT */}
+         <div>
+          <h1 className="text-lg font-semibold text-green-800">
+          </h1>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 px-6 py-8 overflow-y-auto">
+        {/* RIGHT */}
+         <div className="flex items-center gap-6">
+    
+    {/* 🔔 Notification */}
+    <button className="relative text-gray-600 hover:text-green-600 transition text-lg">
+      🔔
+    </button>
+
+    {/* 👤 User */}
+    <div className="text-right">
+      <p className="text-gray-800 font-semibold">
+        {user?.name || "Admin"}
+      </p>
+      <p className="text-sm text-gray-500">
+        {user?.email}
+      </p>
+    </div>
+  </div>
+      </div>
+
+      {/* 📦 CONTENT AREA */}
+      <div className="flex-1 flex flex-col bg-gray-50">
+        
+        {/* 🔁 SCROLLABLE CONTENT */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 min-h-[calc(100vh-72px)]">
           <div className="max-w-7xl mx-auto w-full">
+
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
               </div>
             ) : (
               <>
-                {/* Admin Stats Component */}
+                {/* 📊 Stats */}
                 <AdminStats stats={stats} />
 
-                {/* Admin Quick Actions Component */}
+                {/* ⚡ Quick Actions */}
                 <AdminQuickActions />
 
-                {/* Info Section */}
-                <div className="bg-slate-800 border border-purple-500 border-opacity-30 rounded-lg p-8">
-                  <h2 className="text-2xl font-bold text-white mb-4">👋 Welcome, {user?.name || "Admin"}!</h2>
-                  <p className="text-purple-300 mb-4">
-                    As an administrator, you have access to manage all aspects of the Smart Campus system. Use the sidebar to navigate between modules:
+                {/* 🧠 Info Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mt-6">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                    👋 Welcome, {user?.name || "Admin"}!
+                  </h2>
+
+                  <p className="text-gray-600 mb-4">
+                    Manage all aspects of the Smart Campus system using the sidebar.
                   </p>
-                  <ul className="text-purple-300 space-y-2 ml-4">
-                    <li>✅ <span className="text-white font-semibold">Booking Management:</span> Review and approve/reject pending bookings</li>
-                    <li>✅ <span className="text-white font-semibold">Notification Management:</span> Send system-wide notifications</li>
-                    <li>✅ <span className="text-white font-semibold">Ticket Management:</span> Handle user support tickets</li>
-                    <li>✅ <span className="text-white font-semibold">User Management:</span> Manage users and assign roles</li>
-                    <li>✅ <span className="text-white font-semibold">Facilities Management:</span> Manage campus resources and facilities</li>
+
+                  <ul className="text-gray-600 space-y-2 ml-2">
+                    <li>✅ <span className="font-semibold text-gray-800">Booking Management:</span> Approve or reject bookings</li>
+                    <li>✅ <span className="font-semibold text-gray-800">Notification Management:</span> Send notifications</li>
+                    <li>✅ <span className="font-semibold text-gray-800">Ticket Management:</span> Handle support tickets</li>
+                    <li>✅ <span className="font-semibold text-gray-800">User Management:</span> Manage roles</li>
+                    <li>✅ <span className="font-semibold text-gray-800">Facilities:</span> Manage resources</li>
                   </ul>
-                  <p className="text-purple-300 mt-6">
-                    📋 <span className="text-white font-semibold">Pending Bookings:</span> You have <span className="text-yellow-400 font-bold">{stats.pendingBookings}</span> pending bookings awaiting approval.
+
+                  <p className="text-gray-600 mt-6">
+                    📋 Pending bookings:{" "}
+                    <span className="text-green-600 font-bold">
+                      {stats.pendingBookings}
+                    </span>
                   </p>
                 </div>
               </>
             )}
+
           </div>
         </div>
+
       </div>
     </div>
-  );
-};
-
+  </div>
+);};
 export default AdminDashboard;
