@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("null")
 public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
@@ -169,33 +168,37 @@ public class ResourceServiceImpl implements ResourceService {
     @Transactional(readOnly = true)
     public ResourceAnalyticsDTO getAnalytics() {
 
-        // Top resources by booking count (limit 5)
+        // Top 5 most booked resources
+        // row[0]=resourceId, row[1]=resourceName, row[2]=resourceType(String), row[3]=count
         List<Object[]> topRaw = bookingRepository.findBookingCountPerResource();
         List<ResourceAnalyticsDTO.ResourceBookingCount> topResources = topRaw.stream()
                 .limit(5)
                 .map(row -> ResourceAnalyticsDTO.ResourceBookingCount.builder()
-                        .resourceId((String) row[0])
-                        .resourceName((String) row[1])
-                        .resourceType((String) row[2])
-                        .bookingCount((Long) row[3])
+                        .resourceId(String.valueOf(row[0]))
+                        .resourceName(String.valueOf(row[1]))
+                        .resourceType(String.valueOf(row[2]))
+                        .bookingCount(((Number) row[3]).longValue())
                         .build())
                 .collect(Collectors.toList());
 
         // Bookings per resource type
+        // row[0]=resourceType(String), row[1]=count
         List<Object[]> typeRaw = bookingRepository.findBookingCountPerType();
         Map<String, Long> bookingsByType = new LinkedHashMap<>();
         for (Object[] row : typeRaw) {
-            bookingsByType.put((String) row[0], (Long) row[1]);
+            bookingsByType.put(String.valueOf(row[0]), ((Number) row[1]).longValue());
         }
 
-        // Bookings per hour
+        // Bookings per hour (native query: row[0]=hour int, row[1]=count)
         List<Object[]> hourRaw = bookingRepository.findBookingCountPerHour();
         Map<Integer, Long> bookingsByHour = new TreeMap<>();
         for (Object[] row : hourRaw) {
-            bookingsByHour.put(((Number) row[0]).intValue(), (Long) row[1]);
+            int hour  = ((Number) row[0]).intValue();
+            long count = ((Number) row[1]).longValue();
+            bookingsByHour.put(hour, count);
         }
 
-        // Utilisation rates — for each resource with bookings
+        // Utilisation rates per resource
         List<Resource> allResources = resourceRepository.findAll();
         List<ResourceAnalyticsDTO.ResourceUtilisation> utilisationRates = new ArrayList<>();
         for (Resource res : allResources) {
@@ -205,8 +208,7 @@ public class ResourceServiceImpl implements ResourceService {
                     .sum();
             long availMinutesPerDay = ChronoUnit.MINUTES.between(
                     res.getAvailabilityStart(), res.getAvailabilityEnd());
-            // Estimate over 30 days
-            long totalAvailMinutes = availMinutesPerDay * 30;
+            long totalAvailMinutes = availMinutesPerDay * 30; // estimate over 30 days
             double utilPct = totalAvailMinutes > 0
                     ? Math.min(100.0, (totalBookedMinutes * 100.0) / totalAvailMinutes)
                     : 0.0;
@@ -219,7 +221,6 @@ public class ResourceServiceImpl implements ResourceService {
                     .availableHoursPerDay(availMinutesPerDay / 60)
                     .build());
         }
-        // Sort by utilisation descending
         utilisationRates.sort((a, b) -> Double.compare(b.getUtilisationPercent(), a.getUtilisationPercent()));
 
         // Summary counts

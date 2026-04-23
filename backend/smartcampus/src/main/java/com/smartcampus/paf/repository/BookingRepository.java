@@ -51,21 +51,34 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     @Query("SELECT b FROM Booking b ORDER BY b.createdAt DESC")
     List<Booking> findAllOrderByCreatedAtDesc();
 
-    @Query("SELECT b.resource.id, b.resource.name, b.resource.type, COUNT(b) as cnt " +
-           "FROM Booking b GROUP BY b.resource.id, b.resource.name, b.resource.type " +
+    long countByStatus(BookingStatus status);
+
+    // ── Feature 1: Analytics queries ─────────────────────────────────────────
+
+    // Returns: resourceId, resourceName, resourceType (as String), count
+    // Use CAST on the enum to get its string name in JPQL
+    @Query("SELECT b.resource.id, b.resource.name, " +
+           "CAST(b.resource.type AS string), COUNT(b) as cnt " +
+           "FROM Booking b " +
+           "GROUP BY b.resource.id, b.resource.name, b.resource.type " +
            "ORDER BY cnt DESC")
     List<Object[]> findBookingCountPerResource();
 
-    @Query("SELECT b.resource.type, COUNT(b) FROM Booking b GROUP BY b.resource.type")
+    // Returns: resourceType (as String), count
+    @Query("SELECT CAST(b.resource.type AS string), COUNT(b) " +
+           "FROM Booking b GROUP BY b.resource.type")
     List<Object[]> findBookingCountPerType();
 
-    @Query("SELECT HOUR(b.startTime), COUNT(b) FROM Booking b GROUP BY HOUR(b.startTime)")
+    // Returns: hour (integer), count — uses native MySQL HOUR() function
+    @Query(value = "SELECT HOUR(start_time), COUNT(*) FROM bookings GROUP BY HOUR(start_time)",
+           nativeQuery = true)
     List<Object[]> findBookingCountPerHour();
 
-    long countByStatus(BookingStatus status);
-
+    // Approved bookings for a specific resource (for utilisation calculation)
     @Query("SELECT b FROM Booking b WHERE b.resource.id = :resourceId AND b.status = 'APPROVED'")
     List<Booking> findApprovedByResourceId(@Param("resourceId") String resourceId);
+
+    // ── Feature 3: Availability calendar query ────────────────────────────────
 
     @Query("SELECT b FROM Booking b WHERE b.resource.id = :resourceId " +
            "AND b.bookingDate = :date " +
