@@ -10,7 +10,7 @@ const Select = ({ value, onChange, options, labels }) => (
   <select
     value={value}
     onChange={(e) => onChange(e.target.value)}
-    className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+    className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400"
   >
     {options.map((o) => <option key={o} value={o}>{labels[o]}</option>)}
   </select>
@@ -27,10 +27,10 @@ const ResourceFilters = ({ filters, onFilterChange, onClear }) => {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by name or description…"
+            placeholder="Search by name or description..."
             value={filters.keyword}
             onChange={(e) => onFilterChange({ keyword: e.target.value })}
-            className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+            className="h-10 w-full rounded-xl border border-slate-200 pl-9 pr-3 text-sm text-slate-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400"
           />
         </div>
 
@@ -44,16 +44,16 @@ const ResourceFilters = ({ filters, onFilterChange, onClear }) => {
           value={filters.minCapacity}
           onChange={(e) => onFilterChange({ minCapacity: e.target.value })}
           min={1}
-          className="h-10 w-32 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          className="h-10 w-32 rounded-xl border border-slate-200 px-3 text-sm text-slate-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400"
         />
 
         {/* Location */}
         <input
           type="text"
-          placeholder="Location…"
+          placeholder="Location..."
           value={filters.location}
           onChange={(e) => onFilterChange({ location: e.target.value })}
-          className="h-10 w-36 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          className="h-10 w-36 rounded-xl border border-slate-200 px-3 text-sm text-slate-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400"
         />
 
         {hasActiveFilters && (

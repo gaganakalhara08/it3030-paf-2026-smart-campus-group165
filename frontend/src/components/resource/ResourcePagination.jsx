@@ -9,7 +9,7 @@ const ResourcePagination = ({ currentPage, totalPages, onPageChange, totalElemen
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm text-slate-500">
-        Showing <span className="font-semibold text-slate-700">{from}–{to}</span> of <span className="font-semibold text-slate-700">{totalElements}</span> resources
+        Showing <span className="font-semibold text-slate-700">{from}-{to}</span> of <span className="font-semibold text-slate-700">{totalElements}</span> resources
       </p>
       <div className="flex items-center gap-1">
         <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
@@ -22,7 +22,7 @@ const ResourcePagination = ({ currentPage, totalPages, onPageChange, totalElemen
             <button key={i} onClick={() => onPageChange(i)}
               className={`w-9 h-9 rounded-xl text-sm font-semibold transition-colors ${
                 i === currentPage
-                  ? "bg-purple-600 text-white"
+                  ? "bg-emerald-600 text-white"
                   : "border border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}>
               {i + 1}

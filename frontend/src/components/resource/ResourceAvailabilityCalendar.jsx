@@ -57,7 +57,7 @@ const ResourceAvailabilityCalendar = ({ resource }) => {
 
   const today = () => setSelectedDate(new Date());
 
-  // Build timeline — hourly slots between availability window
+  // Build hourly slots between the availability window.
   const buildTimeline = () => {
     if (!availability) return [];
     const startMin = toMinutes(availability.availabilityStart);
@@ -90,7 +90,7 @@ const ResourceAvailabilityCalendar = ({ resource }) => {
   return (
     <div className="mt-4 border-t border-slate-100 pt-4">
       <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-        <Clock size={15} className="text-purple-600" />
+        <Clock size={15} className="text-emerald-600" />
         Availability Calendar
       </h3>
 
@@ -102,7 +102,7 @@ const ResourceAvailabilityCalendar = ({ resource }) => {
         </button>
         <div className="text-center">
           <p className="text-sm font-semibold text-slate-700">{formatDisplay(selectedDate)}</p>
-          <button onClick={today} className="text-xs text-purple-600 hover:underline mt-0.5">
+          <button onClick={today} className="text-xs text-emerald-600 hover:underline mt-0.5">
             Jump to today
           </button>
         </div>
@@ -122,7 +122,7 @@ const ResourceAvailabilityCalendar = ({ resource }) => {
             {bookedSlots} slot{bookedSlots !== 1 ? "s" : ""} booked
           </span>
           <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-            {availability.availabilityStart?.slice(0,5)} – {availability.availabilityEnd?.slice(0,5)}
+            {availability.availabilityStart?.slice(0,5)} - {availability.availabilityEnd?.slice(0,5)}
           </span>
         </div>
       )}
@@ -147,7 +147,7 @@ const ResourceAvailabilityCalendar = ({ resource }) => {
               }`}>
                 {/* Time label */}
                 <span className="text-xs font-mono font-semibold text-slate-500 w-20 flex-shrink-0 mt-0.5">
-                  {minToLabel(slot.startMin)} – {minToLabel(slot.endMin)}
+                  {minToLabel(slot.startMin)} - {minToLabel(slot.endMin)}
                 </span>
 
                 {isFree ? (
