@@ -91,18 +91,17 @@ public class BookingServiceImpl implements BookingService {
 
         // 🔔 Notify Admin
         userRepository.findAll().stream()
-                .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
-                .findFirst()
-                .ifPresent(admin ->
-                        notificationService.notifyUser(
-                                admin,
-                                "New Booking",
-                                "New booking created by " + user.getName(),
-                                "BOOKING",
-                                "CREATED",
-                                saved.getId()
-                        )
-                );
+        .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
+        .forEach(admin ->
+                notificationService.notifyUser(
+                        admin,
+                        "New Booking",
+                        "New booking created by " + user.getName(),
+                        "BOOKING",
+                        "CREATED",
+                        saved.getId()
+                )
+        );
         return mapToResponse(saved);
     }
     

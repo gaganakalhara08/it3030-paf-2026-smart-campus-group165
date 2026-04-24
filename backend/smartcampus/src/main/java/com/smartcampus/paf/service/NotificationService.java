@@ -19,4 +19,6 @@ public interface NotificationService {
     List<Notification> getUnreadNotifications(User user);
 
     void markAsRead(String notificationId);
+
+    void deleteNotification(String notificationId, User user);
 }

@@ -30,24 +30,35 @@ public class NotificationController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // GET all notifications
+    // ✅ GET all notifications
     @GetMapping
     public ResponseEntity<List<Notification>> getNotifications(Authentication authentication) {
         User user = getCurrentUser(authentication);
         return ResponseEntity.ok(notificationService.getUserNotifications(user));
     }
 
-    // GET unread notifications
+    // ✅ GET unread notifications
     @GetMapping("/unread")
     public ResponseEntity<List<Notification>> getUnread(Authentication authentication) {
         User user = getCurrentUser(authentication);
         return ResponseEntity.ok(notificationService.getUnreadNotifications(user));
     }
 
-    // MARK as read
+    // ✅ MARK as read
     @PutMapping("/{id}/read")
     public ResponseEntity<String> markAsRead(@PathVariable String id) {
         notificationService.markAsRead(id);
         return ResponseEntity.ok("Notification marked as read");
+    }
+
+    // 🔥 DELETE notification (NEW)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteNotification(@PathVariable String id,
+                                                     Authentication authentication) {
+
+        User user = getCurrentUser(authentication);
+        notificationService.deleteNotification(id, user);
+
+        return ResponseEntity.ok("Notification deleted successfully");
     }
 }

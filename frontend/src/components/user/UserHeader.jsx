@@ -10,7 +10,7 @@ const UserHeader = () => {
 
   return (
     <div
-      className="relative shadow-md"
+      className="relative px-6 py-6 border-b border-gray-200"
       style={{
         backgroundImage: `url(${headerBg})`,
         backgroundSize: "cover",

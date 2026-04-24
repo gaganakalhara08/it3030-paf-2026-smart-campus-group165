@@ -23,7 +23,7 @@ public class NotificationServiceImpl implements NotificationService {
                            String message,
                            String type,
                            String action,
-                           String referenceId) {   // ✅ FIXED
+                           String referenceId) {
 
         System.out.println("🔥 NOTIFICATION METHOD CALLED");
 
@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setMessage(message);
         notification.setType(type);
         notification.setAction(action);
-        notification.setReferenceId(referenceId); // ✅ String now
+        notification.setReferenceId(referenceId);
         notification.setRead(false);
 
         notificationRepository.save(notification);
@@ -56,5 +56,20 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.setRead(true);
         notificationRepository.save(notification);
+    }
+
+    // 🔥 ONLY THIS METHOD ADDED
+    @Override
+    public void deleteNotification(String notificationId, User user) {
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        // 🔐 Ensure user owns this notification
+        if (!notification.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized to delete this notification");
+        }
+
+        notificationRepository.delete(notification);
     }
 }

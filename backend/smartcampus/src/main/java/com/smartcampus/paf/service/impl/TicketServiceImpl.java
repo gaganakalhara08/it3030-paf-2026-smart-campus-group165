@@ -180,18 +180,17 @@ public class TicketServiceImpl implements TicketService {
 
         // 🔔 Notify Admin
         userRepository.findAll().stream()
-                .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
-                .findFirst()
-                .ifPresent(admin ->
-                        notificationService.notifyUser(
-                                admin,
-                                "New Ticket",
-                                "New ticket created by " + user.getName(),
-                                "TICKET",
-                                "CREATED",
-                                savedTicket.getId()
-                        )
-                );
+        .filter(u -> u.getRoles().contains(Role.ROLE_ADMIN))
+        .forEach(admin ->
+                notificationService.notifyUser(
+                        admin,
+                        "New Ticket",
+                        "New ticket created by " + user.getName(),
+                        "TICKET",
+                        "CREATED",
+                        savedTicket.getId()
+                )
+        );
         
         // Handle attachments
         if (request.getAttachments() != null) {
