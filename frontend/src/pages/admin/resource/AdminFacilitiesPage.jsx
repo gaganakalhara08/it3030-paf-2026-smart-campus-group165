@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, LayoutGrid, List, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
+import AdminLayout, { AdminPageHeader } from "../../../components/admin/AdminLayout";
 import ResourceCard from "../../../components/resource/ResourceCard";
 import ResourceFilters from "../../../components/resource/ResourceFilters";
 import ResourceFormModal from "../../../components/resource/ResourceFormModal";
@@ -53,7 +53,7 @@ const AdminFacilitiesPage = () => {
       setResources(data.content || []);
       setTotalPages(data.totalPages || 0);
       setTotalElements(data.totalElements || 0);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load resources");
     } finally {
       setLoading(false);
@@ -64,7 +64,9 @@ const AdminFacilitiesPage = () => {
     try {
       const s = await getResourceStats();
       setStats(s);
-    } catch (_) {}
+    } catch {
+      console.warn("Failed to load resource stats");
+    }
   };
 
   useEffect(() => { fetchResources(); }, [filters]);
@@ -128,7 +130,7 @@ const AdminFacilitiesPage = () => {
       toast.success(`Status updated to ${next.replace("_", " ")}`);
       fetchResources();
       fetchStats();
-    } catch (err) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
@@ -154,31 +156,28 @@ const AdminFacilitiesPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar onLogout={handleLogout} />
-
-      <div className="flex-1 flex flex-col min-w-0 ml-64">
-        {/* Page Header */}
-        <div className="bg-white border-b border-slate-200 px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Facilities & Assets Catalogue</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Manage campus rooms, labs, and equipment</p>
-          </div>
-          <div className="flex items-center gap-3">
+    <AdminLayout onLogout={handleLogout}>
+      <AdminPageHeader
+        eyebrow="Facilities"
+        title="Facilities & Assets Catalogue"
+        description="Manage campus rooms, labs, meeting spaces, and equipment."
+        actions={
+          <>
             <button onClick={() => { fetchResources(); fetchStats(); }}
-              className="flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+              className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-200 hover:text-emerald-700">
               <RefreshCw size={15} />
               Refresh
             </button>
             <button onClick={() => { setEditResource(null); setFormOpen(true); }}
-              className="flex items-center gap-2 h-10 px-5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition-colors shadow-sm">
+              className="flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
               <Plus size={16} />
               Add Resource
             </button>
-          </div>
-        </div>
+          </>
+        }
+      />
 
-        <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+      <div className="mx-auto w-full max-w-7xl space-y-6 px-6 py-8 lg:px-8">
 
           {/* Stats bar */}
           <ResourceStatsBar stats={stats} />
@@ -193,15 +192,15 @@ const AdminFacilitiesPage = () => {
           {/* Results header */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-500">
-              {loading ? "Loading…" : `${totalElements} resource${totalElements !== 1 ? "s" : ""} found`}
+              {loading ? "Loading..." : `${totalElements} resource${totalElements !== 1 ? "s" : ""} found`}
             </p>
             <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-200 p-1">
               <button onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-purple-100 text-purple-700" : "text-slate-400 hover:text-slate-600"}`}>
+                className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-emerald-100 text-emerald-700" : "text-slate-400 hover:text-slate-600"}`}>
                 <LayoutGrid size={16} />
               </button>
               <button onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-purple-100 text-purple-700" : "text-slate-400 hover:text-slate-600"}`}>
+                className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-emerald-100 text-emerald-700" : "text-slate-400 hover:text-slate-600"}`}>
                 <List size={16} />
               </button>
             </div>
@@ -216,11 +215,13 @@ const AdminFacilitiesPage = () => {
             </div>
           ) : resources.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="text-5xl mb-4">🏛️</div>
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+                <Plus size={24} />
+              </div>
               <h3 className="text-lg font-bold text-slate-700">No Resources Found</h3>
               <p className="text-sm text-slate-400 mt-1 max-w-xs">Try adjusting your filters or add a new resource to the catalogue.</p>
               <button onClick={() => { setEditResource(null); setFormOpen(true); }}
-                className="mt-5 flex items-center gap-2 h-10 px-5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition-colors">
+                className="mt-5 flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
                 <Plus size={15} /> Add First Resource
               </button>
             </div>
@@ -255,7 +256,7 @@ const AdminFacilitiesPage = () => {
                       <td className="px-4 py-3 text-slate-500">{r.type.replace("_", " ")}</td>
                       <td className="px-4 py-3 text-slate-600">{r.capacity}</td>
                       <td className="px-4 py-3 text-slate-500 max-w-[160px] truncate">{r.location}</td>
-                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.availabilityStart?.slice(0,5)} – {r.availabilityEnd?.slice(0,5)}</td>
+                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.availabilityStart?.slice(0,5)} - {r.availabilityEnd?.slice(0,5)}</td>
                       <td className="px-4 py-3">
                         <button onClick={() => handleStatusToggle(r)}
                           className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
@@ -263,12 +264,12 @@ const AdminFacilitiesPage = () => {
                               ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                               : "bg-red-100 text-red-700 hover:bg-red-200"
                           }`}>
-                          {r.status === "ACTIVE" ? "● Active" : r.status === "OUT_OF_SERVICE" ? "● Out of Service" : "● Maintenance"}
+                          {r.status === "ACTIVE" ? "Active" : r.status === "OUT_OF_SERVICE" ? "Out of Service" : "Maintenance"}
                         </button>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => openDetail(r)} className="text-xs font-medium text-purple-600 hover:underline">View</button>
+                          <button onClick={() => openDetail(r)} className="text-xs font-medium text-emerald-600 hover:underline">View</button>
                           <button onClick={() => openEdit(r)}   className="text-xs font-medium text-slate-600 hover:underline">Edit</button>
                           <button onClick={() => openDelete(r)} className="text-xs font-medium text-red-500 hover:underline">Delete</button>
                         </div>
@@ -288,7 +289,6 @@ const AdminFacilitiesPage = () => {
             pageSize={filters.size}
             onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))}
           />
-        </div>
       </div>
 
       {/* Modals */}
@@ -313,7 +313,7 @@ const AdminFacilitiesPage = () => {
         onCancel={() => { setDeleteOpen(false); setDeleteTarget(null); }}
         loading={actionLoading}
       />
-    </div>
+    </AdminLayout>
   );
 };
 

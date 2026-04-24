@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import AdminSidebar from "../components/admin/AdminSidebar";
+import { AlertCircle, CalendarCheck, Clock, Users } from "lucide-react";
+import AdminLayout, { AdminPageHeader } from "../components/admin/AdminLayout";
 import AdminStats from "../components/admin/AdminStats";
 import AdminQuickActions from "../components/admin/AdminQuickActions";
 import { API_BASE_URL } from "../services/api";
-import heroBg from "../assets/Green.jpg";
-import UserHeader from "../components/user/UserHeader";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -26,7 +25,6 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  // 🔹 Fetch user
   const fetchUserData = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
@@ -38,20 +36,16 @@ const AdminDashboard = () => {
       const data = await response.json();
       setUser(data);
     } catch (error) {
-      console.error("❌ Error fetching user:", error);
+      console.error("Error fetching user:", error);
       toast.error("Failed to load user data");
     }
   };
 
-  // 🔹 Fetch stats
   const fetchStats = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/bookings/admin/all?page=0&size=1000`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/bookings/admin/all?page=0&size=1000`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch stats");
 
@@ -65,82 +59,70 @@ const AdminDashboard = () => {
         totalUsers: new Set(content.map((b) => b.userId)).size,
       });
     } catch (error) {
-      console.error("❌ Error fetching stats:", error);
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    toast.success("Logged out successfully!");
+    toast.success("Logged out successfully");
     navigate("/login");
   };
 
-return (
-  <div className="flex min-h-screen bg-gray-50">
+  return (
+    <AdminLayout onLogout={handleLogout}>
+      <AdminPageHeader
+        eyebrow="Overview"
+        title={`Welcome${user?.name ? `, ${user.name}` : ""}`}
+        description="Monitor campus operations, review pending work, and move quickly into the core admin tools."
+      />
 
-    {/* 🔥 SIDEBAR */}
-    <AdminSidebar onLogout={handleLogout} />
+      <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+        {loading ? (
+          <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <AdminStats stats={stats} />
+            <AdminQuickActions />
 
-    {/* 🔥 MAIN */}
-    <div className="ml-64 flex flex-col flex-1">
-
-      {/* 🌿 HERO HEADER */}
-      <UserHeader user={user} />
-
-      {/* 📦 CONTENT */}
-      <div className="flex-1 px-6 py-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto w-full">
-
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-            </div>
-          ) : (
-            <>
-              {/* 📊 Stats */}
-              <AdminStats stats={stats} />
-
-              {/* ⚡ Quick Actions */}
-              <AdminQuickActions />
-
-              {/* 🧠 Info Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mt-6 hover:shadow-md transition">
-                
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                  👋 Welcome, {user?.name || "Admin"}!
-                </h2>
-
-                <p className="text-gray-600 mb-4">
-                  Manage all aspects of the Smart Campus system using the sidebar.
-                </p>
-
-                <ul className="text-gray-600 space-y-2 ml-2">
-                  <li>✅ <span className="font-semibold text-gray-800">Booking Management:</span> Approve or reject bookings</li>
-                  <li>✅ <span className="font-semibold text-gray-800">Notification Management:</span> Send notifications</li>
-                  <li>✅ <span className="font-semibold text-gray-800">Ticket Management:</span> Handle support tickets</li>
-                  <li>✅ <span className="font-semibold text-gray-800">User Management:</span> Manage roles</li>
-                  <li>✅ <span className="font-semibold text-gray-800">Facilities:</span> Manage resources</li>
-                </ul>
-
-                <p className="text-gray-600 mt-6">
-                  📋 Pending bookings:{" "}
-                  <span className="text-green-600 font-semibold">
-                    {stats.pendingBookings}
-                  </span>
-                </p>
-
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  <AlertCircle size={20} />
+                </div>
+                <div>
+                  <h2 className="m-0 text-lg font-semibold text-slate-900">Operational Snapshot</h2>
+                  <p className="text-sm text-slate-500">Key admin areas that need regular attention.</p>
+                </div>
               </div>
-            </>
-          )}
 
-        </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <Clock size={18} className="mb-3 text-amber-600" />
+                  <p className="text-sm font-semibold text-slate-900">{stats.pendingBookings} pending approvals</p>
+                  <p className="mt-1 text-sm text-slate-500">Review booking requests awaiting a decision.</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <CalendarCheck size={18} className="mb-3 text-emerald-600" />
+                  <p className="text-sm font-semibold text-slate-900">{stats.approvedBookings} approved bookings</p>
+                  <p className="mt-1 text-sm text-slate-500">Track confirmed campus resource usage.</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <Users size={18} className="mb-3 text-sky-600" />
+                  <p className="text-sm font-semibold text-slate-900">{stats.totalUsers} active booking users</p>
+                  <p className="mt-1 text-sm text-slate-500">Manage access and roles from user management.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
       </div>
-
-    </div>
-  </div>
-);};
+    </AdminLayout>
+  );
+};
 
 export default AdminDashboard;

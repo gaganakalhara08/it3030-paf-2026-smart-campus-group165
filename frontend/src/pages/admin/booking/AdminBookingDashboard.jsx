@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle, Clock, List, Download, BarChart3, LayoutGrid } from "lucide-react";
+import { CheckCircle, XCircle, Clock, List, Download, BarChart3 } from "lucide-react";
 import toast from "react-hot-toast";
 import ApprovalCard from "../../../components/booking/ApprovalCard";
 import BookingFilters from "../../../components/booking/BookingFilters";
 import BookingPagination from "../../../components/booking/BookingPagination";
 import { API_BASE_URL } from "../../../services/api";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
+import AdminLayout, { AdminPageHeader } from "../../../components/admin/AdminLayout";
 
 const AdminBookingDashboard = () => {
   const navigate = useNavigate();
@@ -155,16 +155,15 @@ const AdminBookingDashboard = () => {
     toast.success("Bookings exported successfully!");
   };
 
-  const StatCard = ({ icon: Icon, label, value, gradient, shadow }) => (
-    <div className={`relative overflow-hidden rounded-3xl bg-white p-6 transition-all duration-300 hover:-translate-y-1 ${shadow} border border-slate-100`}>
-      <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 bg-gradient-to-br ${gradient}`}></div>
-      <div className="relative z-10 flex items-center justify-between">
+  const StatCard = ({ icon: Icon, label, value, tone }) => (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{label}</p>
-          <p className="mt-2 text-4xl font-black text-slate-800">{value}</p>
+          <p className="text-sm font-medium text-slate-500">{label}</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
         </div>
-        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg`}>
-          <Icon size={26} strokeWidth={2.5} />
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${tone}`}>
+          {React.createElement(Icon, { size: 22 })}
         </div>
       </div>
     </div>
@@ -176,17 +175,20 @@ const AdminBookingDashboard = () => {
         setActiveTab(id);
         setCurrentPage(0);
       }}
-      className={`group relative flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-2xl px-6 py-3.5 font-bold transition-all duration-300 ${
+      className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors sm:flex-none ${
         activeTab === id
-          ? "bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-200"
-          : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+          ? "bg-emerald-600 text-white"
+          : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
       }`}
     >
-      <Icon size={20} className={activeTab === id ? "text-indigo-100" : "text-slate-400 group-hover:text-indigo-500"} />
+      {React.createElement(Icon, {
+        size: 18,
+        className: activeTab === id ? "text-emerald-100" : "text-slate-400",
+      })}
       <span>{label}</span>
       {badge > 0 && (
-        <span className={`ml-2 flex items-center justify-center rounded-lg px-2.5 py-1 text-xs font-black shadow-sm ${
-          activeTab === id ? "bg-white/20 text-white" : "bg-rose-500 text-white shadow-rose-200"
+        <span className={`ml-1 rounded-full px-2 py-0.5 text-xs font-bold ${
+          activeTab === id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
         }`}>
           {badge}
         </span>
@@ -195,61 +197,41 @@ const AdminBookingDashboard = () => {
   );
 
   return (
-    <div className="flex h-screen w-full bg-[#f8fafc] font-sans">
-      {/* Sidebar Navigation */}
-      <AdminSidebar onLogout={handleLogout} />
-
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto w-full relative ml-64">
-        {/* Background abstract decoration */}
-        <div className="absolute top-0 right-0 w-full h-96 bg-gradient-to-br from-indigo-50/50 via-slate-50 to-transparent -z-10 blur-3xl pointer-events-none"></div>
-
-        <div className="p-8 lg:p-12 max-w-7xl mx-auto mt-6">
-          
-          {/* Header Action Row */}
-          <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-12">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-bold tracking-wide">
-                <LayoutGrid size={16} />
-                ADMINISTRATION OVERSIGHT
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 drop-shadow-sm">
-                Booking Management
-              </h1>
-              <p className="text-slate-500 mt-3 text-lg font-medium max-w-2xl">
-                Monitor facility reservations, orchestrate approvals, and export comprehensive audit reports instantly.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-4">
+    <AdminLayout onLogout={handleLogout}>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="Booking Management"
+        description="Monitor reservations, manage approvals, and export booking records."
+        actions={
+          <>
               <button
                 onClick={() => navigate("/admin/analytics")}
-                className="group flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 font-bold text-slate-700 shadow-sm border border-slate-200 transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:text-indigo-600"
+                className="flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-200 hover:text-emerald-700"
               >
-                <BarChart3 size={18} className="text-slate-400 group-hover:text-indigo-500" />
+                <BarChart3 size={17} className="text-slate-400" />
                 View Analytics
               </button>
               
               <button
                 onClick={handleExportCSV}
-                className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-slate-900 px-6 py-3.5 font-bold text-white shadow-lg shadow-slate-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/30"
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                <Download size={18} className="text-slate-300" />
-                Export CSV Report
+                <Download size={17} />
+                Export CSV
               </button>
-            </div>
+          </>
+        }
+      />
+
+        <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard icon={List} label="Total Bookings" value={stats.total} tone="bg-sky-50 text-sky-600" />
+            <StatCard icon={Clock} label="Pending Action" value={stats.pending} tone="bg-amber-50 text-amber-600" />
+            <StatCard icon={CheckCircle} label="Approved" value={stats.approved} tone="bg-emerald-50 text-emerald-600" />
+            <StatCard icon={XCircle} label="Declined" value={stats.rejected} tone="bg-rose-50 text-rose-600" />
           </div>
 
-          {/* Premium Overview Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <StatCard icon={List} label="Total Bookings" value={stats.total} gradient="from-blue-500 to-indigo-600" shadow="shadow-xl shadow-indigo-100/50" />
-            <StatCard icon={Clock} label="Pending Action" value={stats.pending} gradient="from-amber-400 to-orange-500" shadow="shadow-xl shadow-orange-100/50" />
-            <StatCard icon={CheckCircle} label="Approved" value={stats.approved} gradient="from-emerald-400 to-teal-500" shadow="shadow-xl shadow-teal-100/50" />
-            <StatCard icon={XCircle} label="Declined" value={stats.rejected} gradient="from-rose-500 to-pink-600" shadow="shadow-xl shadow-rose-100/50" />
-          </div>
-
-          {/* Navigation Tabs */}
           <div className="flex flex-wrap gap-4 mb-8">
             <TabButton id="all" label="All Records" icon={List} badge={0} />
             <TabButton id="pending" label="Requires Approval" icon={Clock} badge={stats.pending} />
@@ -259,9 +241,9 @@ const AdminBookingDashboard = () => {
 
           {/* Filters Area */}
           {activeTab === "all" && (
-            <div className="mb-8 overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm transition-all">
-              <div className="bg-slate-50/50 border-b border-slate-100 px-6 py-4">
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Filter Results</p>
+            <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-100 bg-slate-50 px-6 py-4">
+                <p className="text-sm font-semibold text-slate-700">Filter Results</p>
               </div>
               <div className="p-6">
                 <BookingFilters
@@ -277,26 +259,22 @@ const AdminBookingDashboard = () => {
 
           {/* Main Bookings Display */}
           {loading ? (
-            <div className="flex flex-col justify-center items-center py-24 bg-white/50 rounded-3xl border border-slate-100">
-              <div className="relative flex items-center justify-center">
-                <div className="absolute h-16 w-16 animate-ping rounded-full border-2 border-indigo-400 opacity-20"></div>
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
-              </div>
-              <p className="mt-6 text-slate-500 font-medium animate-pulse">Loading secure booking data...</p>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white py-20">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
+              <p className="mt-4 text-sm font-medium text-slate-500">Loading booking data...</p>
             </div>
           ) : bookings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl shadow-sm border border-slate-200">
-              <div className="inline-flex items-center justify-center p-6 rounded-3xl bg-slate-50 border border-slate-100 mb-6 relative">
-                <div className="absolute inset-0 bg-indigo-500/5 blur-xl rounded-full"></div>
-                <List size={48} strokeWidth={1} className="text-slate-400 relative z-10" />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white py-20">
+              <div className="mb-5 inline-flex items-center justify-center rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                <List size={42} strokeWidth={1.5} className="text-slate-400" />
               </div>
-              <h3 className="text-3xl font-bold text-slate-800">No records found</h3>
-              <p className="text-slate-500 mt-3 text-lg font-medium max-w-md mx-auto text-center">
-                No bookings match your current criteria. You're completely caught up!
+              <h3 className="text-xl font-semibold text-slate-900">No records found</h3>
+              <p className="mx-auto mt-2 max-w-md text-center text-sm text-slate-500">
+                No bookings match your current criteria.
               </p>
             </div>
           ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div>
               {activeTab === "pending" ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
                   {bookings.map((booking) => (
@@ -309,40 +287,40 @@ const AdminBookingDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-10 ring-1 ring-slate-900/5">
+                <div className="mb-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse whitespace-nowrap">
                       <thead>
-                        <tr className="bg-slate-50/80 border-b border-slate-200">
-                          <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">User Identity</th>
-                          <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Resource</th>
-                          <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Schedule</th>
-                          <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Status</th>
-                          <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Size</th>
+                        <tr className="border-b border-slate-200 bg-slate-50">
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">User Identity</th>
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Resource</th>
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Schedule</th>
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
+                          <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Size</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {bookings.map((booking) => (
                           <tr key={booking.id} className="hover:bg-slate-50/80 transition-colors group">
-                            <td className="px-8 py-5">
+                            <td className="px-6 py-4">
                               <div className="flex flex-col">
                                 <span className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{booking.userName}</span>
                                 <span className="text-sm font-medium text-slate-500">{booking.userEmail}</span>
                               </div>
                             </td>
-                            <td className="px-8 py-5">
+                            <td className="px-6 py-4">
                               <div className="flex flex-col">
                                 <span className="font-bold text-slate-800">{booking.resourceName}</span>
                                 <span className="text-sm font-medium text-slate-500">{booking.resourceLocation}</span>
                               </div>
                             </td>
-                            <td className="px-8 py-5">
+                            <td className="px-6 py-4">
                               <div className="flex flex-col">
                                 <span className="font-bold text-slate-800">{booking.bookingDate}</span>
                                 <span className="text-sm font-medium text-slate-500">{booking.startTime} - {booking.endTime}</span>
                               </div>
                             </td>
-                            <td className="px-8 py-5">
+                            <td className="px-6 py-4">
                               <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${
                                 booking.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                                 booking.status === "REJECTED" ? "bg-rose-50 text-rose-700 border-rose-200" :
@@ -354,7 +332,7 @@ const AdminBookingDashboard = () => {
                                 {booking.status}
                               </div>
                             </td>
-                            <td className="px-8 py-5 text-center">
+                            <td className="px-6 py-4 text-center">
                               <span className="inline-flex items-center justify-center min-w-[2rem] px-3 py-1.5 rounded-xl bg-slate-100 font-bold text-slate-600 text-sm border border-slate-200 shadow-sm">
                                 {booking.expectedAttendees}
                               </span>
@@ -375,8 +353,7 @@ const AdminBookingDashboard = () => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 };
 

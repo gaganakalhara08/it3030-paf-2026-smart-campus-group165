@@ -1,13 +1,14 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
+  BarChart2,
+  Building2,
   Calendar,
+  ChevronRight,
+  Home,
+  LogOut,
   Ticket,
   Users,
-  Building2,
-  LogOut,
-  ChevronRight,
-  BarChart2,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 
@@ -17,32 +18,39 @@ const AdminSidebar = ({ onLogout }) => {
 
   const menuItems = [
     {
+      id: "overview",
+      label: "Overview",
+      icon: Home,
+      path: "/admin/dashboard",
+      description: "Admin home and quick links",
+    },
+    {
       id: "booking-management",
       label: "Booking Management",
       icon: Calendar,
       path: "/admin/bookings",
-      description: "Manage bookings and approvals",
+      description: "Approvals and records",
     },
     {
       id: "ticket-management",
       label: "Ticket Management",
       icon: Ticket,
       path: "/admin/tickets",
-      description: "Handle support tickets",
+      description: "Support and maintenance",
     },
     {
       id: "user-management",
       label: "User Management",
       icon: Users,
       path: "/admin/users",
-      description: "Manage users and roles",
+      description: "Accounts and roles",
     },
     {
       id: "facilities-management",
-      label: "Facilities Management",
+      label: "Facilities",
       icon: Building2,
       path: "/admin/facilities",
-      description: "Manage resources",
+      description: "Rooms, labs and assets",
     },
     {
       id: "resource-analytics",
@@ -53,33 +61,21 @@ const AdminSidebar = ({ onLogout }) => {
     },
   ];
 
-  const isActive = (path) => location.pathname.startsWith(path);
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col shadow-md z-50">
-      
-      {/* 🔝 Logo */}
-      <div
-      onClick={() => navigate("/dashboard")}
-      className="px-6 py-6 border-b border-gray-100 flex flex-col items-center text-center cursor-pointer hover:bg-gray-50 transition"
-    >
-      <img
-        src={logo}
-        alt="logo"
-        className="h-15 w-30 object-contain mb-2"
-      />
+    <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-slate-200 bg-white shadow-sm">
+      <button
+        type="button"
+        onClick={() => navigate("/admin/dashboard")}
+        className="flex flex-col items-center border-b border-slate-100 px-6 py-6 text-center transition hover:bg-slate-50"
+      >
+        <img src={logo} alt="Campus Ops" className="mb-2 h-14 w-32 object-contain" />
+        <span className="text-lg font-semibold text-slate-900">Campus Ops</span>
+        <span className="text-xs text-slate-400">Admin Portal</span>
+      </button>
 
-      <h2 className="text-lg font-semibold text-gray-900">
-        Campus Ops
-      </h2>
-
-      <p className="text-xs text-gray-400">
-        Admin Portal
-      </p>
-    </div>
-
-      {/* 📚 NAVIGATION */}
-      <nav className="flex-1 flex flex-col justify-center px-3 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -87,49 +83,38 @@ const AdminSidebar = ({ onLogout }) => {
           return (
             <button
               key={item.id}
+              type="button"
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition-colors ${
                 active
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-600 shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:translate-x-1"
+                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              <Icon
-                size={20}
-                className={`${
-                  active ? "text-green-600" : "text-gray-400"
-                }`}
-              />
-
-              <div className="flex-1 text-left">
-                <p className={`text-sm ${active ? "font-semibold" : ""}`}>
+              <Icon size={20} className={active ? "text-emerald-600" : "text-slate-400"} />
+              <span className="min-w-0 flex-1 text-left">
+                <span className={`block text-sm ${active ? "font-semibold" : "font-medium"}`}>
                   {item.label}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {item.description}
-                </p>
-              </div>
-
-              {active && (
-                <ChevronRight size={16} className="text-green-600" />
-              )}
+                </span>
+                <span className="block truncate text-xs text-slate-400">{item.description}</span>
+              </span>
+              {active && <ChevronRight size={16} className="text-emerald-600" />}
             </button>
           );
         })}
       </nav>
 
-      {/* 🔻 Logout */}
-      <div className="px-3 py-5 border-t border-gray-100">
+      <div className="border-t border-slate-100 px-3 py-5">
         <button
+          type="button"
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-all hover:translate-x-1"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-500 transition-colors hover:bg-red-50"
         >
           <LogOut size={20} />
           <span className="text-sm font-medium">Logout</span>
         </button>
       </div>
-
-    </div>
+    </aside>
   );
 };
 

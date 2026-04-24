@@ -5,10 +5,10 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line
 } from "recharts";
 import {
-  TrendingUp, Clock, CheckCircle, AlertCircle, XCircle, ArrowLeft, RefreshCw
+  TrendingUp, CheckCircle, AlertCircle, XCircle, ArrowLeft, RefreshCw
 } from "lucide-react";
 import toast from "react-hot-toast";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
+import AdminLayout, { AdminPageHeader } from "../../../components/admin/AdminLayout";
 import { getResourceAnalytics } from "../../../services/resourceService";
 
 const COLORS = ["#7c3aed", "#2563eb", "#0d9488", "#ea580c", "#db2777", "#65a30d"];
@@ -19,9 +19,9 @@ const TYPE_LABELS = {
 };
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-white rounded-2xl border border-slate-200 px-5 py-4 flex items-center gap-4">
-    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-      <Icon size={20} className="text-white" />
+  <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+    <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${color}`}>
+      {React.createElement(Icon, { size: 20, className: "text-white" })}
     </div>
     <div>
       <p className="text-xs text-slate-500 font-medium">{label}</p>
@@ -44,7 +44,7 @@ const AdminResourceAnalytics = () => {
     try {
       const data = await getResourceAnalytics();
       setAnalytics(data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load analytics");
     } finally {
       setLoading(false);
@@ -87,34 +87,32 @@ const AdminResourceAnalytics = () => {
   })) || [];
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar onLogout={handleLogout} />
-
-      <div className="flex-1 flex flex-col min-w-0 ml-64">
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-8 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <AdminLayout onLogout={handleLogout}>
+      <AdminPageHeader
+        eyebrow="Resource Analytics"
+        title="Resource Usage Analytics"
+        description="Review booking trends, peak hours, and utilization rates."
+        actions={
+          <>
             <button
               onClick={() => navigate("/admin/facilities")}
-              className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500"
+              className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-200 hover:text-emerald-700"
             >
               <ArrowLeft size={18} />
+              Facilities
             </button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">Resource Usage Analytics</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Booking trends, peak hours and utilisation rates</p>
-            </div>
-          </div>
           <button
             onClick={fetchAnalytics}
-            className="flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             Refresh
           </button>
-        </div>
+          </>
+        }
+      />
 
-        <div className="flex-1 p-8 space-y-8 overflow-y-auto">
+      <div className="mx-auto w-full max-w-7xl space-y-8 px-6 py-8 lg:px-8">
 
           {loading && !analytics ? (
             <div className="grid grid-cols-4 gap-4">
@@ -126,7 +124,7 @@ const AdminResourceAnalytics = () => {
             <>
               {/* ── Summary stat cards ── */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <StatCard icon={TrendingUp}   label="Total Bookings"     value={analytics.totalBookings}     color="bg-purple-600" />
+                <StatCard icon={TrendingUp}   label="Total Bookings"     value={analytics.totalBookings}     color="bg-sky-600" />
                 <StatCard icon={CheckCircle}  label="Approved"           value={analytics.approvedBookings}  color="bg-emerald-600" />
                 <StatCard icon={AlertCircle}  label="Pending"            value={analytics.pendingBookings}   color="bg-amber-500" />
                 <StatCard icon={XCircle}      label="Cancelled"          value={analytics.cancelledBookings} color="bg-red-500" />
@@ -161,7 +159,7 @@ const AdminResourceAnalytics = () => {
                   )}
                 </div>
 
-                {/* Bookings by type — pie */}
+                {/* Bookings by type */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
                   <SectionTitle>Bookings by Resource Type</SectionTitle>
                   {byTypeData.length === 0 ? (
@@ -174,9 +172,9 @@ const AdminResourceAnalytics = () => {
                             `${name} ${(percent * 100).toFixed(0)}%`}
                           labelLine={false}
                         >
-                          {byTypeData.map((_, i) => (
-                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                          ))}
+                            {byTypeData.map((entry, i) => (
+                              <Cell key={entry.name} fill={COLORS[i % COLORS.length]} />
+                            ))}
                         </Pie>
                         <Tooltip
                           formatter={(v) => [v, "Bookings"]}
@@ -212,7 +210,7 @@ const AdminResourceAnalytics = () => {
 
               {/* ── Utilisation table ── */}
               <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                <SectionTitle>Resource Utilisation Rates (last 30 days estimate)</SectionTitle>
+                <SectionTitle>Resource Utilization Rates (last 30 days estimate)</SectionTitle>
                 {utilisationData.length === 0 ? (
                   <p className="text-sm text-slate-400 py-8 text-center">No resources found</p>
                 ) : (
@@ -256,9 +254,8 @@ const AdminResourceAnalytics = () => {
               </div>
             </>
           ) : null}
-        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
