@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Clock, MapPin, Users, Download } from "lucide-react";
 import toast from "react-hot-toast";
+import UserLayout from "../../../components/user/UserLayout";
 
 const isLocalHost =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
@@ -21,17 +22,7 @@ const BookingCheckIn = () => {
   const [loading, setLoading] = useState(true);
   const canvasRef = useRef(null);
 
-  useEffect(() => {
-    fetchBooking();
-  }, [id]);
-
-  useEffect(() => {
-    if (booking?.status === "APPROVED" && canvasRef.current) {
-      generateQRCode(booking);
-    }
-  }, [booking]);
-
-  const fetchBooking = async () => {
+  async function fetchBooking() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -57,9 +48,9 @@ const BookingCheckIn = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const generateQRCode = async (bookingData) => {
+  async function generateQRCode(bookingData) {
     const QRCode = (await import("qrcode")).default;
     const canvas = canvasRef.current;
 
@@ -81,7 +72,18 @@ const BookingCheckIn = () => {
         toast.error("Failed to generate QR code");
       }
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBooking();
+  }, [id]);
+
+  useEffect(() => {
+    if (booking?.status === "APPROVED" && canvasRef.current) {
+      generateQRCode(booking);
+    }
+  }, [booking]);
 
   const handleCheckIn = async () => {
     try {
@@ -118,41 +120,45 @@ const BookingCheckIn = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UserLayout>
+        <div className="flex items-center justify-center py-16">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+        </div>
+      </UserLayout>
     );
   }
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <UserLayout contentClassName="max-w-2xl">
         <button
           onClick={() => navigate("/user/bookings/dashboard")}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8"
+          className="mb-8 flex items-center gap-2 text-emerald-700 hover:text-emerald-800"
         >
           <ArrowLeft size={20} />
           Back
         </button>
-        <div className="text-center text-gray-700">Booking not found</div>
-      </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-700 shadow-sm">
+          Booking not found
+        </div>
+      </UserLayout>
     );
   }
 
   const isApproved = booking.status === "APPROVED";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-2xl mx-auto">
+    <UserLayout contentClassName="max-w-2xl">
+      <div>
         <button
           onClick={() => navigate("/user/bookings/dashboard")}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8"
+          className="mb-8 flex items-center gap-2 text-emerald-700 hover:text-emerald-800"
         >
           <ArrowLeft size={20} />
           <span>Back to Dashboard</span>
         </button>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Booking Check-In</h1>
             <span
@@ -173,7 +179,7 @@ const BookingCheckIn = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <MapPin size={18} className="text-blue-600" />
+                <MapPin size={18} className="text-emerald-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Location</p>
                   <p className="text-gray-800 font-semibold">{booking.resourceLocation}</p>
@@ -183,7 +189,7 @@ const BookingCheckIn = () => {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <Clock size={18} className="text-blue-600" />
+                <Clock size={18} className="text-emerald-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Date & Time</p>
                   <p className="text-gray-800 font-semibold">{booking.bookingDate}</p>
@@ -194,7 +200,7 @@ const BookingCheckIn = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <Users size={18} className="text-blue-600" />
+                <Users size={18} className="text-emerald-600" />
                 <div>
                   <p className="text-gray-500 text-sm">Expected Attendees</p>
                   <p className="text-gray-800 font-semibold">{booking.expectedAttendees} people</p>
@@ -209,7 +215,7 @@ const BookingCheckIn = () => {
           </div>
 
           {isApproved && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 border-2 border-blue-200">
+            <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Check-In QR Code</h2>
 
               <div className="flex flex-col items-center gap-4">
@@ -219,7 +225,7 @@ const BookingCheckIn = () => {
 
                 <button
                   onClick={downloadQR}
-                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white transition-all hover:bg-emerald-700"
                 >
                   <Download size={18} />
                   Download QR Code
@@ -235,7 +241,7 @@ const BookingCheckIn = () => {
           {isApproved && (
             <button
               onClick={handleCheckIn}
-              className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition-all hover:bg-emerald-700"
             >
               <CheckCircle size={20} />
               Check In Now
@@ -252,7 +258,7 @@ const BookingCheckIn = () => {
           )}
         </div>
       </div>
-    </div>
+    </UserLayout>
   );
 };
 

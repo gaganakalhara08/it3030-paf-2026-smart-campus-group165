@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Users, MapPin, Send, Clock, Loader } from "lucide-
 import toast from "react-hot-toast";
 import { API_BASE_URL, getAuthHeaders } from "../../../services/api";
 import ResourceAvailabilityCalendar from "../../../components/resource/ResourceAvailabilityCalendar";
+import UserLayout from "../../../components/user/UserLayout";
 
 const CreateBooking = () => {
   const navigate = useNavigate();
@@ -141,12 +142,12 @@ const CreateBooking = () => {
 
       if (!hasConflict) {
         setIsAvailable(true);
-        setAvailabilityMessage("✓ Time slot is available");
+        setAvailabilityMessage("Time slot is available");
         toast.success("Time slot is available!");
       } else {
         setIsAvailable(false);
         setAvailabilityMessage(
-          "✗ Time slot is not available. Another booking exists at this time."
+          "Time slot is not available. Another booking exists at this time."
         );
         toast.error("Time slot is not available");
       }
@@ -228,30 +229,20 @@ const CreateBooking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_#0f766e_0%,_#1e293b_45%,_#334155_100%)] p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+    <UserLayout contentClassName="max-w-4xl">
+      <div>
         <button
           onClick={() => navigate("/user/bookings/dashboard")}
-          className="mb-8 inline-flex items-center gap-2 rounded-xl border border-cyan-700/70 bg-slate-800/55 px-4 py-2 text-slate-100 backdrop-blur transition hover:border-cyan-300 hover:text-cyan-100"
+          className="mb-8 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
         >
           <ArrowLeft size={20} />
           <span>Back to Dashboard</span>
         </button>
 
-        {/* Title */}
-        <div className="mb-8">
-          <p className="mb-2 text-4xl font-extrabold tracking-tight text-slate-50 sm:text-5xl">Create Booking</p>
-          <p className="max-w-2xl text-slate-200">
-            Reserve your campus resource with live availability checks and a cleaner booking experience.
-          </p>
-        </div>
-
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Resource Selection */}
-          <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-cyan-200">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-emerald-700">
               Select Resource <span className="text-red-400">*</span>
             </label>
             {resourcesLoading ? (
@@ -263,7 +254,7 @@ const CreateBooking = () => {
               <select
                 value={formData.resourceId}
                 onChange={handleResourceChange}
-                className="w-full rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 required
               >
                 <option value="">Choose a resource...</option>
@@ -278,19 +269,19 @@ const CreateBooking = () => {
 
           {/* Resource Details */}
           {selectedResource && (
-            <div className="grid grid-cols-1 gap-4 rounded-3xl border border-cyan-500/30 bg-cyan-700/20 p-5 backdrop-blur md:grid-cols-2">
-              <div className="flex items-center gap-3 text-slate-200">
-                <MapPin size={18} className="text-cyan-300" />
+            <div className="grid grid-cols-1 gap-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-5 md:grid-cols-2">
+              <div className="flex items-center gap-3 text-slate-700">
+                <MapPin size={18} className="text-emerald-600" />
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-cyan-200/80">Location</p>
-                  <p className="font-semibold text-white">{selectedResource.location}</p>
+                  <p className="text-xs uppercase tracking-wide text-emerald-700">Location</p>
+                  <p className="font-semibold text-slate-900">{selectedResource.location}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-slate-200">
-                <Users size={18} className="text-cyan-300" />
+              <div className="flex items-center gap-3 text-slate-700">
+                <Users size={18} className="text-emerald-600" />
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-cyan-200/80">Capacity</p>
-                  <p className="font-semibold text-white">{selectedResource.capacity} people</p>
+                  <p className="text-xs uppercase tracking-wide text-emerald-700">Capacity</p>
+                  <p className="font-semibold text-slate-900">{selectedResource.capacity} people</p>
                 </div>
               </div>
             </div>
@@ -298,14 +289,14 @@ const CreateBooking = () => {
 
           {/* Calendar view for booked slots (per day) */}
           {selectedResource && (
-            <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <ResourceAvailabilityCalendar resource={selectedResource} />
             </div>
           )}
 
           {/* Date Selection */}
-          <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-cyan-200">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-emerald-700">
               Booking Date <span className="text-red-400">*</span>
             </label>
             <div className="relative">
@@ -315,27 +306,27 @@ const CreateBooking = () => {
                 value={formData.bookingDate}
                 onChange={handleInputChange}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 required
               />
               <Calendar
                 size={20}
-                className="pointer-events-none absolute right-3 top-3 text-cyan-300"
+                className="pointer-events-none absolute right-3 top-3 text-emerald-600"
               />
             </div>
           </div>
 
           {/* Time Selection */}
           {formData.bookingDate && formData.resourceId && (
-            <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-              <label className="mb-4 block text-sm font-semibold uppercase tracking-wide text-cyan-200">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <label className="mb-4 block text-sm font-semibold uppercase tracking-wide text-emerald-700">
                 Select Time Slot <span className="text-red-400">*</span>
               </label>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {/* Start Time */}
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Start Time
                   </label>
                   <div className="relative">
@@ -344,19 +335,19 @@ const CreateBooking = () => {
                       name="startTime"
                       value={formData.startTime}
                       onChange={handleInputChange}
-                      className="w-full rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
                       required
                     />
                     <Clock
                       size={18}
-                      className="pointer-events-none absolute right-3 top-3 text-cyan-300"
+                      className="pointer-events-none absolute right-3 top-3 text-emerald-600"
                     />
                   </div>
                 </div>
 
                 {/* End Time */}
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                     End Time
                   </label>
                   <div className="relative">
@@ -365,12 +356,12 @@ const CreateBooking = () => {
                       name="endTime"
                       value={formData.endTime}
                       onChange={handleInputChange}
-                      className="w-full rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
                       required
                     />
                     <Clock
                       size={18}
-                      className="pointer-events-none absolute right-3 top-3 text-cyan-300"
+                      className="pointer-events-none absolute right-3 top-3 text-emerald-600"
                     />
                   </div>
                 </div>
@@ -385,7 +376,7 @@ const CreateBooking = () => {
                   !formData.startTime ||
                   !formData.endTime
                 }
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-600 px-4 py-2.5 font-semibold text-white transition-all hover:from-cyan-400 hover:to-sky-500 disabled:cursor-not-allowed disabled:from-slate-500 disabled:to-slate-500"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {checkingAvailability ? (
                   <>
@@ -402,8 +393,8 @@ const CreateBooking = () => {
                 <div
                   className={`mt-3 p-3 rounded-lg text-sm font-semibold ${
                     isAvailable
-                      ? "border border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
-                      : "border border-rose-500/40 bg-rose-500/15 text-rose-200"
+                      ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border border-rose-200 bg-rose-50 text-rose-700"
                   }`}
                 >
                   {availabilityMessage}
@@ -413,10 +404,10 @@ const CreateBooking = () => {
           )}
 
           {/* Purpose */}
-          <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-cyan-200">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-emerald-700">
               Purpose of Booking <span className="text-red-400">*</span>
-              <span className="ml-2 text-xs font-normal tracking-normal text-slate-400">
+                <span className="ml-2 text-xs font-normal tracking-normal text-slate-500">
                 (Minimum 5 characters)
               </span>
             </label>
@@ -427,7 +418,7 @@ const CreateBooking = () => {
               placeholder="Describe the purpose of your booking..."
               rows="4"
               minLength="5"
-              className="w-full resize-none rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
               required
             />
             {formData.purpose && (
@@ -442,8 +433,8 @@ const CreateBooking = () => {
           </div>
 
           {/* Expected Attendees */}
-          <div className="rounded-3xl border border-cyan-800/50 bg-slate-800/65 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-cyan-200">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-emerald-700">
               Expected Attendees <span className="text-red-400">*</span>
             </label>
             <div className="relative">
@@ -455,16 +446,16 @@ const CreateBooking = () => {
                 min="1"
                 max={selectedResource?.capacity || 100}
                 placeholder="Number of people"
-                className="w-full rounded-2xl border border-slate-500 bg-slate-700/85 px-4 py-3 text-slate-100 transition-all focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 required
               />
               <Users
                 size={20}
-                className="pointer-events-none absolute right-3 top-3 text-cyan-300"
+                className="pointer-events-none absolute right-3 top-3 text-emerald-600"
               />
             </div>
             {selectedResource && formData.expectedAttendees && (
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-slate-500">
                 {formData.expectedAttendees} / {selectedResource.capacity} capacity
               </p>
             )}
@@ -475,14 +466,14 @@ const CreateBooking = () => {
             <button
               type="button"
               onClick={() => navigate("/user/bookings/dashboard")}
-              className="flex-1 rounded-2xl border border-slate-500 bg-slate-700/70 px-6 py-3 font-semibold text-slate-100 transition-all hover:border-cyan-300 hover:text-cyan-100"
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !isAvailable}
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-600 px-6 py-3 font-semibold text-white transition-all hover:from-cyan-400 hover:to-sky-500 disabled:cursor-not-allowed disabled:from-slate-500 disabled:to-slate-500"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               {loading ? (
                 <>
@@ -499,7 +490,7 @@ const CreateBooking = () => {
           </div>
         </form>
       </div>
-    </div>
+    </UserLayout>
   );
 };
 

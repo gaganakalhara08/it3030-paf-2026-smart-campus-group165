@@ -15,6 +15,7 @@ import {
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "../../../services/api";
 import QRCodeDisplay from "../../../components/booking/QRCodeDisplay";
+import UserLayout from "../../../components/user/UserLayout";
 
 const formatDate = (value) => {
   if (!value) return "N/A";
@@ -35,11 +36,7 @@ const BookingDetails = () => {
     expectedAttendees: "",
   });
 
-  useEffect(() => {
-    fetchBookingDetails();
-  }, [id]);
-
-  const fetchBookingDetails = async () => {
+  async function fetchBookingDetails() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -67,7 +64,12 @@ const BookingDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBookingDetails();
+  }, [id]);
 
   const openEditModal = () => {
     if (!booking) return;
@@ -244,19 +246,20 @@ const BookingDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-cyan-50 to-amber-50 p-6">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-cyan-200 border-t-cyan-600" />
-      </div>
+      <UserLayout>
+        <div className="flex items-center justify-center py-16">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+        </div>
+      </UserLayout>
     );
   }
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-cyan-50 to-amber-50 p-6">
-        <div className="mx-auto max-w-2xl">
+      <UserLayout contentClassName="max-w-2xl">
           <button
             onClick={() => navigate("/user/bookings/dashboard")}
-            className="mb-6 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            className="mb-6 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
           >
             <ArrowLeft size={18} />
             Back to Bookings
@@ -266,18 +269,17 @@ const BookingDetails = () => {
             <h3 className="text-xl font-semibold text-slate-700">Booking not found</h3>
             <p className="mt-2 text-slate-500">The booking you are looking for does not exist.</p>
           </div>
-        </div>
-      </div>
+      </UserLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-cyan-50 to-amber-50 p-6">
-      <div className="mx-auto max-w-6xl">
+    <UserLayout contentClassName="max-w-6xl">
+      <div>
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <button
             onClick={() => navigate("/user/bookings/dashboard")}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
           >
             <ArrowLeft size={18} />
             Back
@@ -509,7 +511,7 @@ const BookingDetails = () => {
           </div>
         </div>
       )}
-    </div>
+    </UserLayout>
   );
 };
 

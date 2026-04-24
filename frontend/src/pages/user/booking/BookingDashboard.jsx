@@ -11,13 +11,29 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  LogOut,
-  LayoutDashboard,
-  Home,
   QrCode,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import BookingsMonthCalendar from "../../../components/booking/BookingsMonthCalendar";
+import UserLayout from "../../../components/user/UserLayout";
+
+const StatCard = ({ icon, label, count, tint }) => {
+  const Icon = icon;
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+          <h3 className="mt-1 text-3xl font-bold text-slate-800">{count}</h3>
+        </div>
+        <div className={`rounded-xl p-3 ${tint}`}>
+          <Icon size={20} className="text-white" />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const BookingDashboard = () => {
   const navigate = useNavigate();
@@ -26,11 +42,7 @@ const BookingDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  useEffect(() => {
-    fetchBookings();
-  }, [statusFilter]);
-
-  const fetchBookings = async () => {
+  async function fetchBookings() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -78,7 +90,12 @@ const BookingDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBookings();
+  }, [statusFilter]);
 
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm("Are you sure you want to delete this booking?")) {
@@ -126,11 +143,6 @@ const BookingDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   const calculateStats = () => {
     return {
       total: bookings.length,
@@ -160,20 +172,6 @@ const BookingDashboard = () => {
     ? bookings.filter((booking) => (booking.bookingDate || "").slice(0, 10) === dateFilter)
     : bookings;
 
-  const StatCard = ({ icon: Icon, label, count, tint }) => (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-          <h3 className="mt-1 text-3xl font-bold text-slate-800">{count}</h3>
-        </div>
-        <div className={`rounded-xl p-3 ${tint}`}>
-          <Icon size={20} className="text-white" />
-        </div>
-      </div>
-    </div>
-  );
-
   const filterButtons = [
     { key: "", label: "All", style: "bg-cyan-600 text-white border-cyan-600" },
     { key: "PENDING", label: "Pending", style: "bg-amber-500 text-white border-amber-500" },
@@ -182,48 +180,18 @@ const BookingDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-cyan-50 to-amber-50">
-      <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">Booking Dashboard</h1>
-            <p className="mt-1 text-sm text-slate-600">Manage and track your smart campus reservations</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => navigate("/user/dashboard")}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
-            >
-              <Home size={16} />
-              User Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/user/bookings/dashboard")}
-              className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700"
-            >
-              <LayoutDashboard size={16} />
-              Booking Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/user/bookings/create")}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-            >
-              <Plus size={16} />
-              Create Booking
-            </button>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
-            >
-              <LogOut size={16} />
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6">
-        <div className="mx-auto max-w-7xl">
+    <UserLayout
+      headerActions={
+        <button
+          type="button"
+          onClick={() => navigate("/user/bookings/create")}
+          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          <Plus size={16} />
+          Create Booking
+        </button>
+      }
+    >
           <div className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <StatCard icon={Calendar} label="Total Bookings" count={stats.total} tint="bg-cyan-600" />
             <StatCard icon={AlertCircle} label="Pending" count={stats.pending} tint="bg-amber-500" />
@@ -385,9 +353,7 @@ const BookingDashboard = () => {
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+    </UserLayout>
   );
 };
 
