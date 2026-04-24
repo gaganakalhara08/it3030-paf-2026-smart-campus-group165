@@ -5,6 +5,7 @@ import { AlertCircle, CalendarCheck, Clock, Users } from "lucide-react";
 import AdminLayout, { AdminPageHeader } from "../components/admin/AdminLayout";
 import AdminStats from "../components/admin/AdminStats";
 import AdminQuickActions from "../components/admin/AdminQuickActions";
+import AdminNotifications from "../components/admin/AdminNotifications";
 import { API_BASE_URL } from "../services/api";
 
 const AdminDashboard = () => {
@@ -77,6 +78,15 @@ const AdminDashboard = () => {
         eyebrow="Overview"
         title={`Welcome${user?.name ? `, ${user.name}` : ""}`}
         description="Monitor campus operations, review pending work, and move quickly into the core admin tools."
+        actions={
+          <div className="flex items-center gap-3">
+            <AdminNotifications />
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-semibold text-slate-900">{user?.name || "Admin"}</p>
+              <p className="text-xs text-slate-500">{user?.email}</p>
+            </div>
+          </div>
+        }
       />
 
       <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
