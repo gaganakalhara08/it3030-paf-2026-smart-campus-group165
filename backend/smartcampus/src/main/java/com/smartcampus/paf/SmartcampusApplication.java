@@ -1,4 +1,4 @@
-package com.smartcampus;
+package com.smartcampus.paf;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

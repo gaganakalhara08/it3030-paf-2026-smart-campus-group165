@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Environment variables (CRITICAL - protect secrets!)
+.env
+*.env
+application-local.properties
+application.properties.secrets
+
+# Backend specific
+backend/smartcampus/.env
+backend/**/.env
