@@ -1,8 +1,10 @@
 package com.smartcampus.paf.service.impl;
 
 import com.smartcampus.paf.model.Notification;
+import com.smartcampus.paf.model.NotificationPreference;
 import com.smartcampus.paf.model.User;
 import com.smartcampus.paf.repository.NotificationRepository;
+import com.smartcampus.paf.repository.NotificationPreferenceRepository;
 import com.smartcampus.paf.service.NotificationService;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +14,33 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationPreferenceRepository preferenceRepository;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+    // ✅ Constructor Injection
+    public NotificationServiceImpl(
+            NotificationRepository notificationRepository,
+            NotificationPreferenceRepository preferenceRepository) {
         this.notificationRepository = notificationRepository;
+        this.preferenceRepository = preferenceRepository;
+    }
+
+    // 🔥 CORE LOGIC: Check if notification is allowed
+    private boolean isAllowed(User user, String type) {
+        NotificationPreference pref = preferenceRepository.findByUser(user)
+                .orElse(null);
+
+        if (pref == null) return true; // default allow
+
+        switch (type) {
+            case "BOOKING":
+                return pref.isBookingEnabled();
+            case "TICKET":
+                return pref.isTicketEnabled();
+            case "COMMENT":
+                return pref.isCommentEnabled();
+            default:
+                return true;
+        }
     }
 
     @Override
@@ -26,6 +52,12 @@ public class NotificationServiceImpl implements NotificationService {
                            String referenceId) {
 
         System.out.println("🔥 NOTIFICATION METHOD CALLED");
+
+        // 🔥 APPLY PREFERENCE CHECK
+        if (!isAllowed(user, type)) {
+            System.out.println("⛔ Notification blocked by user preference");
+            return;
+        }
 
         Notification notification = new Notification();
         notification.setUser(user);
@@ -58,7 +90,6 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
-    // 🔥 ONLY THIS METHOD ADDED
     @Override
     public void deleteNotification(String notificationId, User user) {
 
