@@ -104,7 +104,7 @@ import static org.mockito.Mockito.*;
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessageContaining("Lab A101");
 
-        verify(resourceRepository).save(any(Resource.class));
+        verify(resourceRepository, never()).save(any(Resource.class));
     }
 
     @Test
