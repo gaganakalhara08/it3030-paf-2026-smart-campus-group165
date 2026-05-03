@@ -31,13 +31,26 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (pref == null) return true; // default allow
 
+        System.out.println("🔍 TYPE RECEIVED: " + type); // debug
+
         switch (type) {
+
+            // ✅ BOOKING TYPES
             case "BOOKING":
+            case "BOOKING_CREATED":
+            case "BOOKING_APPROVED":
                 return pref.isBookingEnabled();
+
+            // ✅ TICKET TYPES
             case "TICKET":
+            case "CREATED":            // 🔥 IMPORTANT FIX (your system uses this)
+            case "TICKET_CREATED":
                 return pref.isTicketEnabled();
+
+            // ✅ COMMENT TYPES
             case "COMMENT":
                 return pref.isCommentEnabled();
+
             default:
                 return true;
         }
